@@ -1,3 +1,4 @@
+#include "linearwaves.h"
 
 double scaleH(double x) {
     return params.h * x * pow(x,params.f);
@@ -6,7 +7,7 @@ double omegaK(double x) {
     return pow(x,-1.5);
 }
 double nu(double x) {
-    return params.alpha * params.h*params.h * pow(x, params.nuindx)
+    return params.alpha * params.h*params.h * pow(x, params.nuindx);
 }
 double cs(double x) {
     return scaleH(x)*omegaK(x);
@@ -38,11 +39,11 @@ double kappa(double x) {
 double omega(double x) {
     return pow(omega2(x),.5);
 }
-double k2om(double x):
+double k2om(double x) {
     return kappa2(x)/(2*omega(x));
 }
 double sigma(double x) {
-    return params.sig0 * pow(r,params.mu);
+    return params.sig0 * pow(x,params.mu);
 }
 double pres(double x) {
     return cs2(x)*sigma(x);
@@ -62,5 +63,5 @@ double dc2dr(double x) {
     return params.delta * cs2(x)/x;
 }
 double Dfunc(double x, double omp, int m) {
-    return disk.kappa2(x) - m*m*(omega(x) - omp)*(omega(x)-omp);
+    return kappa2(x) - m*m*(omega(x) - omp)*(omega(x)-omp);
 }

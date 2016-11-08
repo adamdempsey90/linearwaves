@@ -1,5 +1,5 @@
-
-
+#include "linearwaves.h"
+#include <gsl/gsl_integration.h>
 typedef struct GSL_params {
     double x;
     int m;
@@ -15,7 +15,7 @@ double potential(double phi, double x) {
 }
 
 double dr_potential(double phi, double x) {
-    double res = planet.mp( x - planet.a*cos(phi)) * pow(x*x + planet.a*planet.a + planet.eps2 - 2*planet.a*x*cos(phi),-1.5);
+    double res = planet.mp*( x - planet.a*cos(phi)) * pow(x*x + planet.a*planet.a + planet.eps2 - 2*planet.a*x*cos(phi),-1.5);
 
     if (planet.indirect) {
         res -= 2*planet.mp * cos(phi)*planet.a/(x*x*x);
@@ -32,21 +32,22 @@ double dp_potential(double phi, double x) {
     return res;
 }
 
-void pfunc(double phi, void *params) {
+double pfunc(double phi, void *params) {
     GSL_params p = *(GSL_params *)params;
     double x  = p.x;
     int m = p.m;
     return cos(m*phi) * potential(phi,x);
 }
-void dpfunc(douggble phi, void *params) {
+double dpfunc(double phi, void *params) {
     GSL_params p = *(GSL_params *)params;
     double x  = p.x;
     int m = p.m;
     return cos(m*phi) * dr_potential(phi,x);
 }
 
-void force(double x, int m, double *res, double *dr_res) {
+void force(double x, int m, double complex *res, double complex *dr_res) {
     int nspace = 1000;
+    int gsl_order = 1;
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(nspace);
     
     gsl_function F1, F2;
@@ -55,17 +56,63 @@ void force(double x, int m, double *res, double *dr_res) {
     GSL_params p;
     p.x = x;
     p.m = m;
-    F.params = &p;
+    F1.params = &p;
     F2.params = &p;
     
     double tol = 1e-7;
     double error;
-    double res, dr_res;
-    gsl_integration_qag(&F,0,M_PI, tol, nspace, w, res, &error);
-    gsl_integration_qag(&F2,0,M_PI, tol, nspace, w, dr_res, &error);
 
-    *res = *res * -I * m/(x*M_PI);
-    *dr_res = *dr_res * -1./(M_PI);
+    double res_r, dr_res_r;
+    gsl_integration_qag(&F1,0,M_PI, tol, tol, nspace, gsl_order , w, &res_r, &error);
+    gsl_integration_qag(&F2,0,M_PI, tol, tol, nspace, gsl_order , w, &dr_res_r, &error);
+
+    *res = res_r * -I * m/(x*M_PI);
+    *dr_res = dr_res_r * -1./(M_PI);
     gsl_integration_workspace_free(w); 
     return;
 }
+
+/*
+int main(int argc, char *argv[]) {
+
+    planet.mp = 1e-5;
+    planet.a = 1.0;
+    planet.eps = .6*.05;
+    planet.eps2 = planet.eps*planet.eps;
+    planet.indirect = TRUE;
+
+    if (planet.indirect) {
+        printf("Using indirect potential\n");
+    }
+
+   
+    int NM = atoi(argv[1]);
+    int NR = atoi(argv[2]);
+
+
+    double complex *res = (double complex *)malloc(sizeof(double complex)*NM*NR);
+    double complex *dr_res = (double complex *)malloc(sizeof(double complex)*NM*NR);
+    
+    int m;
+    double x;
+    int j,indx;
+    for(m=1;m<=NM;m++) {
+        for(j=0;j<NR;j++) {
+            x = .6 + j*(2.-.6)/NR;
+            indx = j + (m-1)*NR;
+            force(x,m,&res[indx],&dr_res[indx]);
+        }
+    }
+
+
+    FILE *f = fopen("pot_test.dat","w");
+
+    fwrite(res,sizeof(double complex),NM*NR,f);
+    fwrite(dr_res,sizeof(double complex),NM*NR,f);
+    fclose(f);
+
+
+
+    return 1;
+}
+*/
