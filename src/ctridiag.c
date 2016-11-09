@@ -1,7 +1,7 @@
 #include "linearwaves.h"
 
-void matmat(double  *A, double *B, double *C,
-					double alpha, double beta, int nA)
+void cmatmat(double complex  *A, double complex *B, double complex *C,
+					double complex alpha, double complex beta, int nA)
 {
 /* Performs \alpha * A.B + \beta * C and stores the output in C.
 	A,B, and C are all matrices.
@@ -17,7 +17,7 @@ void matmat(double  *A, double *B, double *C,
 	int LDB = nA;
 	int LDC = nA;
 
-    double *work = (double *)malloc(sizeof(double)*nA*nA);
+    double complex *work = (double complex *)malloc(sizeof(double complex)*nA*nA);
 	for(i=0;i<nA;i++) {
 		for(j=0;j<nA;j++) work[i+nA*j] = C[j + nA*i];
 	}
@@ -26,7 +26,7 @@ void matmat(double  *A, double *B, double *C,
 		for(j=0;j<nA;j++)	C[i + nA*j] = work[i+nA*j];
 	}
 
-	dgemm_(&TRANSA, &TRANSB, &m,&n,&k,&alpha,A,&LDA,B,&LDB,&beta,C,&LDC);
+	zgemm_(&TRANSA, &TRANSB, &m,&n,&k,&alpha,A,&LDA,B,&LDB,&beta,C,&LDC);
 
 
 	for(i=0;i<nA;i++) {
@@ -41,8 +41,8 @@ void matmat(double  *A, double *B, double *C,
 
 }
 
-void matvec(double  *A, double*B, double *C,
-					double alpha, double beta, int nB)
+void cmatvec(double complex  *A, double complex*B, double complex *C,
+					double complex alpha, double complex beta, int nB)
 {
 /* Performs \alpha * A.B + \beta * C and stores the output in C.
 	A is a matrix, B and C are vectors.
@@ -58,13 +58,13 @@ void matvec(double  *A, double*B, double *C,
 
 
 
-	dgemv_(&TRANS, &m,&n,&alpha,A,&LDA,B,&INCX,&beta,C,&INCY);
+	zgemv_(&TRANS, &m,&n,&alpha,A,&LDA,B,&INCX,&beta,C,&INCY);
 
 	return;
 
 }
 
-void matmat3(double *A, double *B, double *C, double alpha, double beta) {
+void cmatmat3(double complex *A, double complex *B, double complex *C, double complex alpha, double complex beta) {
 
     C[0] = beta*C[0] + alpha*(A[0]*B[0] + A[1]*B[3] + A[2]*B[6]);
     C[1] = beta*C[1] + alpha*(A[0]*B[1] + A[1]*B[4] + A[2]*B[7]);
@@ -81,7 +81,7 @@ void matmat3(double *A, double *B, double *C, double alpha, double beta) {
     return;
 }
 
-void matvec3(double *A, double *B, double *C, double alpha, double beta) {
+void cmatvec3(double complex *A, double complex *B, double complex *C, double complex alpha, double complex beta) {
 
     C[0] = beta*C[0] + alpha*(A[0]*B[0] + A[1]*B[1] + A[2]*B[2]);
     C[1] = beta*C[1] + alpha*(A[3]*B[0] + A[4]*B[1] + A[5]*B[2]);
@@ -91,7 +91,7 @@ void matvec3(double *A, double *B, double *C, double alpha, double beta) {
 }
 
 
-void solve(double *A, double *B,int nA, int nRHS) {
+void csolve(double complex *A, double complex *B,int nA, int nRHS) {
 
     int N = nA;
     int NRHS = nRHS;
@@ -100,8 +100,8 @@ void solve(double *A, double *B,int nA, int nRHS) {
     int LDB = nA;
     int INFO;
 
-    double *AT = (double *)malloc(sizeof(double)*nA*nA);
-    double *BT = (double *)malloc(sizeof(double)*nA*nRHS);
+    double complex *AT = (double complex *)malloc(sizeof(double complex)*nA*nA);
+    double complex *BT = (double complex *)malloc(sizeof(double complex)*nA*nRHS);
     int i,j;
     for(i=0;i<nA;i++) {
         for(j=0;j<nA;j++) {
@@ -119,7 +119,7 @@ void solve(double *A, double *B,int nA, int nRHS) {
         for(i=0;i<nA;i++) BT[i] = B[i];
     }
 
-    dgesv_(&nA, &NRHS, AT, &LDA, IPIV, BT, &LDB, &INFO);
+    zgesv_(&nA, &NRHS, AT, &LDA, IPIV, BT, &LDB, &INFO);
 
     if (nRHS > 1) {
         for(i=0;i<nA;i++) {
@@ -136,7 +136,7 @@ void solve(double *A, double *B,int nA, int nRHS) {
     return;
 }
 
-void thomas_alg(double *a, double *b, double *c, double *d, int n) {
+void cthomas_alg(double complex *a, double complex *b, double complex *c, double complex *d, int n) {
     /* 
      * Solve the tridiagonal system a_i*y_{i-1} + b_i*y_i + c_i*y_{i+1} = d_i
      * using Thomas's algorithm
@@ -171,7 +171,7 @@ void thomas_alg(double *a, double *b, double *c, double *d, int n) {
 
     return;
 }
-void thomas_alg_block(double *a, double *b, double *c, double *d, int n, int m) {
+void cthomas_alg_block(double complex *a, double complex *b, double complex *c, double complex *d, int n, int m) {
     /* 
      * Solve the block tridiagonal system a_i*y_{i-1} + b_i*y_i + c_i*y_{i+1} = d_i
      * using Thomas's algorithm
@@ -180,34 +180,34 @@ void thomas_alg_block(double *a, double *b, double *c, double *d, int n, int m) 
     int i; 
     int size = m*m;
 
-    solve(&b[0],&c[0],m,m);
-    solve(&b[0],&d[0],m,1);
+    csolve(&b[0],&c[0],m,m);
+    csolve(&b[0],&d[0],m,1);
 
     for(i=1;i<n-1;i++) {
         
-        matmat3(&a[(i-1)*size],&c[(i-1)*size],&b[i*size],-1.0,1.0);
-        matvec3(&a[(i-1)*size],&d[(i-1)*m],&d[i*m],-1.0,1.0);
+        cmatmat3(&a[(i-1)*size],&c[(i-1)*size],&b[i*size],-1.0,1.0);
+        cmatvec3(&a[(i-1)*size],&d[(i-1)*m],&d[i*m],-1.0,1.0);
 
-        solve(&b[i*size],&c[i*size],m,m);
-        solve(&b[i*size],&d[i*m],m,1);
+        csolve(&b[i*size],&c[i*size],m,m);
+        csolve(&b[i*size],&d[i*m],m,1);
         
 
     }
     i = n-1;
         
-    matmat3(&a[(i-1)*size],&c[(i-1)*size],&b[i*size],-1.0,1.0);
-    matvec3(&a[(i-1)*size],&d[(i-1)*m],&d[i*m],-1.0,1.0);
-    solve(&b[i*size],&d[i*m],m,1);
+    cmatmat3(&a[(i-1)*size],&c[(i-1)*size],&b[i*size],-1.0,1.0);
+    cmatvec3(&a[(i-1)*size],&d[(i-1)*m],&d[i*m],-1.0,1.0);
+    csolve(&b[i*size],&d[i*m],m,1);
 
 
     for(i=n-2;i>=0;i--) {
-        matvec3(&c[i*size],&d[(i+1)*m],&d[i*m],-1,1);
+        cmatvec3(&c[i*size],&d[(i+1)*m],&d[i*m],-1,1);
     }
 
     return;
 }
 
-void construct_total_matrix(double *ld, double *md, double *ud, double *mat, int n, int m) {
+void cconstruct_total_matrix(double complex *ld, double complex *md, double complex *ud, double complex *mat, int n, int m) {
 
     int i,j,k;
 

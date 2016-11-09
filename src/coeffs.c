@@ -2,7 +2,6 @@
 
 
 void main_diag(double r, int m, double complex *res) {
-
     double om = omega(r);
     double c2 = cs2(r);
     double k2om = kappa2(r)/(2*omega(r));
@@ -169,10 +168,11 @@ void lw_outer_bc(double rn, int m, int eps, double complex *mdn, double complex 
     return;
 } 
 
-void construct_matrix(double complex *ld, double complex *md, double complex *ud, double complex *fd, int m) {
+void construct_matrix(double *r, double complex *ld, double complex *md, double complex *ud, double complex *fd, int m) {
     int i;
     int size = params.nrhs*params.nrhs;
     int n = params.n;
+
 
     lw_inner_bc(r[0], m, 1, &md[0], &ud[0], &fd[0]);
     add_force(r[0], m, &fd[0]);

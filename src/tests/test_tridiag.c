@@ -1,4 +1,6 @@
-#include "linearwaves.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
 void matmat(double  *A, double *B, double *C,
 					double alpha, double beta, int nA)
@@ -207,46 +209,178 @@ void thomas_alg_block(double *a, double *b, double *c, double *d, int n, int m) 
     return;
 }
 
-void construct_total_matrix(double *ld, double *md, double *ud, double *mat, int n, int m) {
+void test_1(int n) {
 
-    int i,j,k;
+    FILE *f = fopen("input.dat","r");
+
+    double *md = (double *)malloc(sizeof(double)*n);
+    double *ud = (double *)malloc(sizeof(double)*(n-1));
+    double *ld = (double *)malloc(sizeof(double)*(n-1));
+    double *fd = (double *)malloc(sizeof(double)*n);
+    double *ans = (double *)malloc(sizeof(double)*n);
+
+    fread(md, sizeof(double),n,f);
+    fread(ud, sizeof(double),(n-1),f);
+    fread(ld, sizeof(double),(n-1),f);
+    fread(fd, sizeof(double),n,f);
+    fread(ans, sizeof(double),n,f);
+
+
+    thomas_alg(ld,md,ud,fd,n);
+
+
+    int i;
+    double err = 0;
+    for(i=0;i<n;i++) err += (fd[i]-ans[i])*(fd[i]-ans[i]);
+
+    err = pow(err/n,.5);
+
+    printf("Error is %.5e\n",err);
+
+
+
+    free(md);free(ud);free(ld);free(fd);free(ans);
+
+    return;
+
+}
+
+void test_2(void) {
+    int m = 3;
+    int size = 9;
+    double *A = (double *)malloc(sizeof(double)*size);
+    double *B = (double *)malloc(sizeof(double)*size);
+    double *C = (double *)malloc(sizeof(double)*size);
+    double *ansm = (double *)malloc(sizeof(double)*size);
+    double *anssm = (double *)malloc(sizeof(double)*size);
+
+    double *D = (double *)malloc(sizeof(double)*m);
+    double *E = (double *)malloc(sizeof(double)*m);
+    double *ansv = (double *)malloc(sizeof(double)*m);
+    double *anss = (double *)malloc(sizeof(double)*m);
+
+    double coeffs[2];
+
+    FILE *f = fopen("input.dat","r");
+    fread(A,sizeof(double),size,f);
+    fread(B,sizeof(double),size,f);
+    fread(C,sizeof(double),size,f);
+    fread(D,sizeof(double),m,f);
+    fread(E,sizeof(double),m,f);
+    fread(&coeffs[0],sizeof(double),2,f);
+    fread(ansm,sizeof(double),size,f);
+    fread(ansv,sizeof(double),m,f);
+    fread(anss,sizeof(double),m,f);
+    fread(anssm,sizeof(double),size,f);
+
+
+    int i;
+
+
+    matmat(A,B,C,coeffs[0],coeffs[1],m);
+    matvec(A,D,E,coeffs[0],coeffs[1],m);
+    //matmat3(A,B,C,coeffs[0],coeffs[1]);
+    //matvec3(A,D,E,coeffs[0],coeffs[1]);
+    solve(A,D,m,1);
+    solve(A,B,m,m);
+
+    double err_m = 0;
+    double err_v = 0;
+    double err_s = 0;
+    double err_sm = 0;
+    for(i=0;i<size;i++) {
+        err_m += (C[i] - ansm[i])*(C[i]-ansm[i]);
+    }
+    for(i=0;i<m;i++) {
+        err_v += (E[i] - ansv[i])*(E[i]-ansv[i]);
+    }
+    for(i=0;i<m;i++) {
+        //printf("%lg\t%lg\n",D[i],anss[i]);
+        err_s += (D[i] - anss[i])*(D[i]-anss[i]);
+    }
+    for(i=0;i<size;i++) {
+        err_sm += (B[i] - anssm[i])*(B[i]-anssm[i]);
+    }
+    int j;
+    for(i=0;i<m;i++) {
+        for(j=0;j<m;j++) {
+            printf("%lg\t%lg\n",B[i+m*j],anssm[j+i*m]);
+        }
+    }
+    err_m = pow(err_m/size,.5);
+    err_v = pow(err_v/m,.5);
+    err_s = pow(err_s/m,.5);
+    err_sm = pow(err_sm/m,.5);
+
+    printf("Matmat Error: %.5e\n", err_m);
+    printf("Matvec Error: %.5e\n", err_v);
+    printf("Solve Error: %.5e\n", err_s);
+    printf("3 Solve Error: %.5e\n", err_sm);
+
+    free(A); free(B); free(C); free(D); free(E); free(ansm); free(ansv);
+    free(anss);free(anssm);
+    return;
+}
+
+void test_3(int n, int m) {
 
     int size = m*m;
+    FILE *f = fopen("input.dat","r");
 
-    i=0;
-    for(j=i*m;j<(i+1)*m;j++) {
-        for(k=i*m; k < (i+1)*m; k++) {
-            mat[k + j*n] = md[i*size + k + j*m];
+    double *md = (double *)malloc(sizeof(double)*n*size);
+    double *ud = (double *)malloc(sizeof(double)*(n-1)*size);
+    double *ld = (double *)malloc(sizeof(double)*(n-1)*size);
+    double *fd = (double *)malloc(sizeof(double)*n*m);
+    double *ans = (double *)malloc(sizeof(double)*n*m);
+
+    fread(md, sizeof(double),n*size,f);
+    fread(ud, sizeof(double),(n-1)*size,f);
+    fread(ld, sizeof(double),(n-1)*size,f);
+    fread(fd, sizeof(double),n*m,f);
+    fread(ans, sizeof(double),n*m,f);
+
+
+
+    int i;
+    for(i=0;i<n*m;i++) printf("%lg\n",fd[i]);
+
+    thomas_alg_block(ld,md,ud,fd,n,m);
+    for(i=0;i<n*m;i++) printf("%lg\t%lg\n",fd[i],ans[i]);
+
+
+    double err = 0;
+    for(i=0;i<n*m;i++) err += (fd[i]-ans[i])*(fd[i]-ans[i]);
+
+    err = pow(err/(n*m),.5);
+
+    printf("Error is %.5e\n",err);
+
+
+
+    free(md);free(ud);free(ld);free(fd);free(ans);
+    return;
+}
+
+int main(int argc, char *argv[]) {
+    int i;    
+    if (argc == 1) {
+        test_1(20);
+    }
+    else {
+        switch (atoi(argv[1])) {
+            case 1:
+                test_1(20);
+                break;
+            case 2:
+                test_2();
+                break;
+            case 3:
+                test_3(20,3);
+                break;
         }
-        for(k=(i+1)*m; k<(i+2)*m;k++) {
-            mat[k + j*n] = ud[i*size + k + j*m];
-        }
+
     }
 
 
-    for(i=1;i<n-1;i++) {
-
-        for(j=i*m;j<(i+1)*m;j++) {
-            for(k=i*m; k < (i+1)*m; k++) {
-                mat[k + j*n] = md[i*size + k + j*m];
-            }
-            for(k=(i+1)*m; k<(i+2)*m;k++) {
-                mat[k + j*n] = ud[i*size + k + j*m];
-            }
-            for(k=(i-1)*m;k<i*m;k++) {
-                mat[k + j*n] = ld[i*size + k+j*m];
-            }
-        }
-    }
-    i = n-1;
-    for(j=i*m;j<(i+1)*m;j++) {
-        for(k=i*m; k < (i+1)*m; k++) {
-            mat[k + j*n] = md[i*size + k + j*m];
-        }
-        for(k=(i-1)*m;k<i*m;k++) {
-            mat[k + j*n] = ld[i*size + k+j*m];
-        }
-    }
-
-
+    return 1;
 }

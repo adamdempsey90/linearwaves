@@ -5,6 +5,18 @@ typedef struct GSL_params {
     int m;
 } GSL_params;
 
+
+void init_planet(void) {
+
+    planet.mp = 1e-5;
+    planet.eps = .6*.05;
+    planet.eps2 = planet.eps*planet.eps;
+    planet.a = 1;
+    planet.indirect = TRUE;
+    return;
+
+}
+
 double potential(double phi, double x) {
     double res = -planet.mp * pow(x*x + planet.a*planet.a + planet.eps2 - 2*planet.a*x*cos(phi),-.5);
 

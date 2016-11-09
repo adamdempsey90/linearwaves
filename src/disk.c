@@ -13,7 +13,7 @@ double cs(double x) {
     return scaleH(x)*omegaK(x);
 }
 double cs2(double x) {
-    return cs2(x)*cs2(x);
+    return cs(x)*cs(x);
 }
 
 double omega2(double x) {
