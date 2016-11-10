@@ -13,6 +13,7 @@ typedef struct Params {
 
     double h, mu, delta, nuindx, eta, alpha,omf,f,sig0;
     double dlr,rmin,rmax;
+    double ieps;
     int iso;
 
 
@@ -47,14 +48,16 @@ double dsdr(double x) ;
 double dpdr(double x) ;
 double dc2dr(double x) ;
 double Dfunc(double x, double omp, int m) ;
+double complex sig(double x, double complex s);
 
-void force(double x, int m, double complex *res, double complex *dr_res);
+void force(double x, int m, double complex *res);
 void construct_matrix(double *r, double complex *ld, double complex *md, double complex *ud, double complex *fd, int m);
 
 
 
 void cthomas_alg_block(double complex *a, double complex *b, double complex *c, double complex *d, int n, int m);
 void cconstruct_total_matrix(double complex *ld, double complex *md, double complex *ud, double complex *mat, int n, int m);
-void output(double *r, double complex *sol, char *fname);
+void output(double *r, double complex *sol, double *lamex, double *fw, char *fname);
 void init_params(void);
 void init_planet(void);
+void output_matrix(double complex *ld, double complex *md, double complex *ud, double complex *fd);

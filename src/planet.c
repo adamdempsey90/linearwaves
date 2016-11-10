@@ -18,28 +18,28 @@ void init_planet(void) {
 }
 
 double potential(double phi, double x) {
-    double res = -planet.mp * pow(x*x + planet.a*planet.a + planet.eps2 - 2*planet.a*x*cos(phi),-.5);
+    double res = -pow(x*x + planet.a*planet.a + planet.eps2 - 2*planet.a*x*cos(phi),-.5);
 
     if (planet.indirect) {
-        res += planet.mp * cos(phi)*planet.a/(x*x);
+        res += cos(phi)*planet.a/(x*x);
     }
     return res;
 }
 
 double dr_potential(double phi, double x) {
-    double res = planet.mp*( x - planet.a*cos(phi)) * pow(x*x + planet.a*planet.a + planet.eps2 - 2*planet.a*x*cos(phi),-1.5);
+    double res = ( x - planet.a*cos(phi)) * pow(x*x + planet.a*planet.a + planet.eps2 - 2*planet.a*x*cos(phi),-1.5);
 
     if (planet.indirect) {
-        res -= 2*planet.mp * cos(phi)*planet.a/(x*x*x);
+        res -= 2* cos(phi)*planet.a/(x*x*x);
     }
     return res;
 }
 
 double dp_potential(double phi, double x) {
-    double res = planet.mp *planet.a*x*sin(phi)* pow(x*x + planet.a*planet.a + planet.eps2 - 2*planet.a*x*cos(phi),-1.5);
+    double res = planet.a*x*sin(phi)* pow(x*x + planet.a*planet.a + planet.eps2 - 2*planet.a*x*cos(phi),-1.5);
 
     if (planet.indirect) {
-        res += planet.mp * sin(phi)*planet.a/(x*x);
+        res +=  sin(phi)*planet.a/(x*x);
     }
     return res;
 }
@@ -57,9 +57,9 @@ double dpfunc(double phi, void *params) {
     return cos(m*phi) * dr_potential(phi,x);
 }
 
-void force(double x, int m, double complex *res, double complex *dr_res) {
+void force(double x, int m, double complex *res) {
     int nspace = 1000;
-    int gsl_order = 1;
+    int gsl_order = 5;
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(nspace);
     
     gsl_function F1, F2;
@@ -77,9 +77,12 @@ void force(double x, int m, double complex *res, double complex *dr_res) {
     double res_r, dr_res_r;
     gsl_integration_qag(&F1,0,M_PI, tol, tol, nspace, gsl_order , w, &res_r, &error);
     gsl_integration_qag(&F2,0,M_PI, tol, tol, nspace, gsl_order , w, &dr_res_r, &error);
+    res_r *= planet.mp/M_PI;
+    dr_res_r *= planet.mp/M_PI;
 
-    *res = res_r * -I * m/(x*M_PI);
-    *dr_res = dr_res_r * -1./(M_PI);
+    res[0] = -dr_res_r ;
+    res[1] = res_r * -I * m/x;
+    res[2] = 0;
     gsl_integration_workspace_free(w); 
     return;
 }

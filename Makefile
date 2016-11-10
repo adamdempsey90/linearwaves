@@ -22,7 +22,7 @@ SRC=src/
 UNAME := $(shell echo $(USER))
 
 
-CC=gcc-6
+CC=gcc
 ##INCLIB=-I/usr/local/include/
 ##LDLIB=-L/usr/local/lib/
 INCLIB=

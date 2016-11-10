@@ -9,11 +9,11 @@ double omegaK(double x) {
 double nu(double x) {
     return params.alpha * params.h*params.h * pow(x, params.nuindx);
 }
-double cs(double x) {
-    return scaleH(x)*omegaK(x);
-}
 double cs2(double x) {
-    return cs(x)*cs(x);
+    return params.h*params.h * pow(x,params.delta);
+}
+double cs(double x) {
+    return pow(cs2(x),.5);
 }
 
 double omega2(double x) {
@@ -64,4 +64,14 @@ double dc2dr(double x) {
 }
 double Dfunc(double x, double omp, int m) {
     return kappa2(x) - m*m*(omega(x) - omp)*(omega(x)-omp);
+}
+double complex sig(double x, double complex s) {
+    if (params.iso) {
+        return s*sigma(x);
+
+    }
+    else {
+        return s*sigma(x)/cs2(x);
+    }
+
 }
