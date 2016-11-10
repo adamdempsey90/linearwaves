@@ -17,20 +17,29 @@ double cs(double x) {
 }
 
 double omega2(double x) {
-    if (params.iso) {
-        return pow(x,-3) + cs2(x)/(x*x) * (params.delta + params.mu);
+    if (!params.pcorrect) {
+        return pow(x,-3);
     }
     else {
-        return pow(x,-3) + cs2(x)/(x*x) * params.mu;
+        if (params.iso) {
+            return pow(x,-3) + cs2(x)/(x*x) * (params.delta + params.mu);
+        }
+        else {
+            return pow(x,-3) + cs2(x)/(x*x) * params.mu;
+        }
     }
 }
 double kappa2(double x) {
-
-    if (params.iso) {
-        return pow(x,-3) + cs2(x)/(x*x)*( (2+params.delta)*(params.delta+params.mu));
+    if (!params.pcorrect) {
+        return pow(x,-3);
     }
     else {
-        return pow(x,-3) + cs2(x)/(x*x)*params.mu*(2+params.delta);
+        if (params.iso) {
+            return pow(x,-3) + cs2(x)/(x*x)*( (2+params.delta)*(params.delta+params.mu));
+        }
+        else {
+            return pow(x,-3) + cs2(x)/(x*x)*params.mu*(2+params.delta);
+        }
     }
 }
 double kappa(double x) {

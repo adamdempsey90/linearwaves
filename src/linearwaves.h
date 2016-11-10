@@ -14,7 +14,7 @@ typedef struct Params {
     double h, mu, delta, nuindx, eta, alpha,omf,f,sig0;
     double dlr,rmin,rmax;
     double ieps;
-    int iso;
+    int iso,pcorrect;
 
 
 }    Params;

@@ -149,7 +149,7 @@ void lw_inner_bc(double r0, int m, int eps, double complex *md0, double complex 
     
     double complex fac = (1 - .5*eps*I*kr*params.dlr)/(1 + .5*eps*I*kr*params.dlr);
 
-    printf("%lg\t%lg\t%lg+I%lg\n",rb,kr,creal(fac),cimag(fac));
+//    printf("%lg\t%lg\t%lg+I%lg\n",rb,kr,creal(fac),cimag(fac));
     int i;
     for(i=0;i<9;i++) {
         md0[i] += fac*ud0[i];
@@ -180,10 +180,12 @@ void construct_matrix(double *r, double complex *ld, double complex *md, double 
     int n = params.n;
 
     
-    printf("Inner bc\n");
     lw_inner_bc(r[0], m, 1, &md[0], &ud[0]);
     add_force(r[0], m, &fd[0]);
 
+#ifdef _OPENMP
+#pragma omp parallel for private(i)
+#endif
     for(i=1;i<n-1;i++) {
         main_diag(r[i],m, &md[i*size]);
         upper_diag(r[i],m, &ud[i*size]);
@@ -192,7 +194,6 @@ void construct_matrix(double *r, double complex *ld, double complex *md, double 
     }
 
     i = n-1;
-    printf("Outer bc\n");
     lw_outer_bc(r[i], m, 1, &md[i*size],  &ld[(i-1)*size]);
     add_force(r[i], m, &fd[i*params.nrhs]);
     return;

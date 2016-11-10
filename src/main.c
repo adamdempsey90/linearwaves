@@ -5,15 +5,16 @@
 int main(int argc, char *argv[]) {
     int i;
     clock_t tic, toc;
-    double dt;
+    double timers[3];
+    const char *timer_names[3] = {"Matrix: ", "Solve:  ", "Torque: "};
+
+
     int m = atoi(argv[1]); 
 
     printf("Using m = %d\nSaving to %s\n",m,argv[2]);
 
-    printf("Initializing\n");
     init_planet();
     init_params();
-    printf("Allocating\n");
     double *r = (double *)malloc(sizeof(double)*params.n);
     double complex *md =  (double complex *)malloc(sizeof(double complex)*params.n * params.nrhs * params.nrhs);
     double complex *fd =  (double complex *)malloc(sizeof(double complex)*params.n * params.nrhs);
@@ -23,28 +24,28 @@ int main(int argc, char *argv[]) {
     double *fw= (double *)malloc(sizeof(double)*params.n);
 
 
-    printf("Setting grid\n");
     params.dlr = log(params.rmax/params.rmin) / (double)params.n;
     for(i=0;i<params.n;i++) {
         r[i] = params.rmin * exp(i*params.dlr);
     }
 
-    printf("Constructing matrix\n");
     tic = clock();
     construct_matrix(r,ld,md,ud,fd,m);
     toc = clock();
-    dt = (double)(toc - tic)/CLOCKS_PER_SEC;
-    printf("Construct Matrix took %lg\n seconds",dt);
+    timers[0] = (double)(toc - tic)/CLOCKS_PER_SEC;
+
+
     output_matrix(ld,md,ud,fd);
-    printf("Solving\n");
+
     tic = clock();
     cthomas_alg_block(ld,md,ud,fd,params.n,params.nrhs);
     toc = clock();
-    dt = (double)(toc - tic)/CLOCKS_PER_SEC;
-    printf("Solve took %lg seconds\n",dt);
+    timers[1] = (double)(toc - tic)/CLOCKS_PER_SEC;
 
     double complex u,v,s;
     double complex res_f[3];
+    
+    tic = clock();
     for(i=0;i<params.n;i++) {
         u = fd[i*3];
         v = fd[i*3+1];
@@ -53,11 +54,13 @@ int main(int argc, char *argv[]) {
         force(r[i],m,res_f);
         lamex[i] = 2*M_PI*r[i]*2*creal(r[i]*conj(s)*res_f[1]);
     }
+    toc = clock();
+    timers[2] = (double)(toc - tic)/CLOCKS_PER_SEC;
 
-    printf("Outputting to %s\n",argv[2]);
     output(r,fd,lamex,fw,argv[2]);
 
-    printf("Done\n");
+
+    for(i=0;i<3;i++) printf("%s\t%.3e s\n",timer_names[i],timers[i]);
 
 
     free(r); free(md); free(fd); free(ud); free(ld);

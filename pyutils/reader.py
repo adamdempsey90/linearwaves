@@ -22,18 +22,35 @@ class Mode():
         self.fw = dat[:n]
         self.phase = np.arctan2(self.s.imag,self.s.real)
         self.dlr = np.diff(np.log(self.r))[0]
-    def summary(self):
+
+        self.ilam =np.zeros(self.lamex.shape)
+        ind = self.r>=1
+        self.ilam[ind] = (self.lamex*self.r*self.dlr)[ind].cumsum()
+        self.ilam[ind] -= self.ilam[ind][0]
+        ind = self.r<=1
+        self.ilam[ind] = -(self.lamex*self.r*self.dlr)[ind][::-1].cumsum()[::-1]
+        self.ilam[ind] -= self.ilam[ind][-1]
+
+    def summary(self,logx=True):
         fig,axes = plt.subplots(1,3,figsize=(15,5))
         axes[0].plot(self.r,self.u.real,self.r,self.u.imag)
         axes[1].plot(self.r,self.v.real,self.r,self.v.imag)
         axes[2].plot(self.r,self.s.real,self.r,self.s.imag)
 
-    def torque(self):
+        if logx:
+            for ax in axes:
+                ax.set_xscale('log')
+
+    def torque(self,logx=True):
         fig,axes=plt.subplots(1,2,figsize=(10,5))
         axes[0].plot(self.r,self.lamex)
         axes[1].plot(self.r,self.fw)
+        axes[1].plot(self.r,self.ilam)
+        if logx:
+            for ax in axes:
+                ax.set_xscale('log')
 
-    def phase_plot(self):
+    def phase_plot(self,logx=True):
         fig = plt.figure()
         ax = fig.add_subplot(111)
         phase = np.arctan2(self.s.imag,self.s.real)
@@ -45,3 +62,6 @@ class Mode():
         dpdr[-1] = (phase[-1] - phase[-2])/dlr
         dpdr /= self.r
         ax.plot(self.r,dpdr)
+
+        if logx:
+            ax.set_xscale('log')
