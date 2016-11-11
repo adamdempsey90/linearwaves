@@ -30,14 +30,14 @@ class Mode():
         self.ilam =np.zeros(self.lamex.shape)
         self.ildep =np.zeros(self.lamdep.shape)
         ind = self.r>=1
-        self.ilam[ind] = (self.lamex*self.r*self.dlr)[ind].cumsum()
+        self.ilam[ind] = (self.lamex*self.r**2*self.dlr)[ind].cumsum()
         self.ilam[ind] -= self.ilam[ind][0]
-        self.ildep[ind] = (self.lamdep*self.r*self.dlr)[ind].cumsum()
+        self.ildep[ind] = (self.lamdep*self.r**2*self.dlr)[ind].cumsum()
         self.ildep[ind] -= self.ildep[ind][0]
         ind = self.r<=1
-        self.ilam[ind] = -(self.lamex*self.r*self.dlr)[ind][::-1].cumsum()[::-1]
+        self.ilam[ind] = -(self.lamex*self.r**2*self.dlr)[ind][::-1].cumsum()[::-1]
         self.ilam[ind] -= self.ilam[ind][-1]
-        self.ildep[ind] = -(self.lamdep*self.r*self.dlr)[ind][::-1].cumsum()[::-1]
+        self.ildep[ind] = -(self.lamdep*self.r**2*self.dlr)[ind][::-1].cumsum()[::-1]
         self.ildep[ind] -= self.ildep[ind][-1]
 
         #self.drfw = np.gradient(self.fw)/(self.r*self.dlr)
@@ -53,20 +53,18 @@ class Mode():
                 ax.set_xscale('log')
 
     def torque(self,logx=True):
-        fig,axes=plt.subplots(1,2,figsize=(10,5))
-        axes[0].plot(self.r,self.lamex)
-        axes[1].plot(self.r,self.fw)
-        axes[1].plot(self.r,self.ilam)
-        axes[1].plot(self.r,self.ilam-self.fw)
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.plot(self.r,self.ilam,'-k')
+        ax.plot(self.r,self.fw,'-r')
+        ax.plot(self.r,self.ildep,'-b')
         if logx:
-            for ax in axes:
-                ax.set_xscale('log')
+            ax.set_xscale('log')
     def dr_torque(self,logx=True):
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.plot(self.r,self.lamex,'-k')
         ax.plot(self.r,self.drfw,'-r')
-        ax.plot(self.r,self.lamex-self.drfw,'--b')
         ax.plot(self.r,self.lamdep,'-b')
         if logx:
             ax.set_xscale('log')
