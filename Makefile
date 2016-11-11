@@ -1,5 +1,5 @@
 EXECUTABLE=linearwaves
-SOURCES=coeffs.c disk.c main.c output.c ctridiag.c planet.c init.c
+SOURCES=coeffs.c disk.c main.c output.c ctridiag.c planet.c init.c torques.c
 HEADER=linearwaves.h
 
 LAPACKLIB=-llapack -lblas

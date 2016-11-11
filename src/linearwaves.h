@@ -14,7 +14,7 @@ typedef struct Params {
     double h, mu, delta, nuindx, eta, alpha,omf,f,sig0;
     double dlr,rmin,rmax;
     double ieps;
-    int iso,pcorrect;
+    int iso,pcorrect,zero_inner_bc, zero_outer_bc;
 
 
 }    Params;
@@ -57,7 +57,8 @@ void construct_matrix(double *r, double complex *ld, double complex *md, double 
 
 void cthomas_alg_block(double complex *a, double complex *b, double complex *c, double complex *d, int n, int m);
 void cconstruct_total_matrix(double complex *ld, double complex *md, double complex *ud, double complex *mat, int n, int m);
-void output(double *r, double complex *sol, double *lamex, double *fw, char *fname);
+void output(double *r, double complex *sol, double *lamex, double *lamdep, double *fw, char *fname);
 void init_params(void);
 void init_planet(void);
 void output_matrix(double complex *ld, double complex *md, double complex *ud, double complex *fd);
+void calc_deposited_torque(double *r, double *lamdep, double complex *sol, int m);
