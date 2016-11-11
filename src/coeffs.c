@@ -8,7 +8,7 @@ void main_diag(double r, int m, double complex *res) {
     double k2om = kappa2(r)/(2*om);
     double invdlr2 = -2./(params.dlr*params.dlr);
     double norm = (params.iso) ? 1.0 : c2;
-    int i,j;
+    int i;
    for(i=0;i<9;i++) res[i] = 0;
 
     res[0] = I*(m*(om - params.omf) - params.ieps*I);     
@@ -20,39 +20,17 @@ void main_diag(double r, int m, double complex *res) {
     res[6] = (params.mu + 1)*norm/r;                     
     res[7] = I*m*norm/r;                     
     res[8] = I*(m*(om - params.omf)-params.ieps*I);    
-/*
-    printf("%lg\n",r);
-    for(i=0;i<3;i++) {
-        for(j=0;j<3;j++) {
-            printf("%.03f+%.03fI\t",creal(res[INDX(i,j)]),cimag(res[INDX(i,j)]));
-        }
-        printf("\n");
-    }
-    */
-    double visc = -nu(r);
-    double ir2 = 1./(r*r);
 
-    res[0] -= visc*(2 + m*m + (1 - params.eta)*params.nuindx)*ir2;
-    res[1] -= visc*I*m*(3 + (1 + params.nuindx)*params.eta)*ir2;
-    res[3] += visc*I*m*(3 - params.eta + params.nuindx)*ir2;
-    res[4] -= visc*(1 + params.nuindx + m*m*(2 - params.eta))*ir2;
-    res[0] += visc*(2+params.eta)*ir2*invdlr2;
-    res[4] += visc*ir2*invdlr2;
-    if (params.iso) {
-        res[2] += visc*1j*m*(k2om - 2*om)/r;
-    }
-    else {
-        res[2] += visc*1j*m*(k2om - 2*om)/(r*c2) ;
-        res[5] -= visc*1j*m*(k2om - 2*om)/(r*c2) * params.delta;
-    }
+    viscosity_coeffs_u(r,res,m);
+    viscosity_d2coeffs_u(r,res,m,invdlr2);
+    viscosity_coeffs_v(r,&res[params.nrhs],m);
+    viscosity_d2coeffs_v(r,&res[params.nrhs],m,invdlr2);
     return;
 }
 
 void upper_diag(double r, int m, double complex *res) {
 
    double c2 = cs2(r);
-   double om = omega(r);
-   double k2om = kappa2(r)/(2*om);
    double invdlr = .5/params.dlr;
    double invdlr2 = 1./(params.dlr*params.dlr);
    double norm = (params.iso) ? 1.0 : c2;
@@ -60,31 +38,16 @@ void upper_diag(double r, int m, double complex *res) {
    for(i=0;i<9;i++) res[i] = 0;
    res[2] = c2/(norm*r) * invdlr;
    res[6] = norm*invdlr / r;
-    /*
-    printf("%lg\n",r);
-    int j;
-    for(i=0;i<3;i++) {
-        for(j=0;j<3;j++) {
-            printf("%.03f+%.03fI\t",creal(res[INDX(i,j)]),cimag(res[INDX(i,j)]));
-        }
-        printf("\n");
-    }
-    */
-    double visc = -nu(r);
-    double ir2 = 1./(r*r);
-    res[0] += visc*(2*params.nuindx+1)*ir2*invdlr;
-    res[1] += visc*I*m*(1+params.eta)*ir2*invdlr;
-    res[3] += visc*(1-params.eta)*I*m*ir2*invdlr;
-    res[4] += visc*params.nuindx*ir2*invdlr;
-    res[0] += visc*(2+params.eta)*ir2*invdlr2;
-    res[4] += visc*ir2*invdlr2;
-    res[5] += visc*I*m*(k2om-2*om)/(r*norm)*invdlr;
+
+   viscosity_dcoeffs_u(r,res,m,invdlr);
+   viscosity_dcoeffs_v(r,&res[params.nrhs],m,invdlr);
+    viscosity_d2coeffs_u(r,res,m,invdlr2);
+    viscosity_d2coeffs_v(r,&res[params.nrhs],m,invdlr2);
     return;
 }
 
+
 void lower_diag(double r, int m, double complex *res) {
-    double om = omega(r);
-    double k2om = kappa2(r)/(2*om);
     double c2 = cs2(r);
     double invdlr = -.5/params.dlr;
     double invdlr2 = 1./(params.dlr*params.dlr);
@@ -93,16 +56,11 @@ void lower_diag(double r, int m, double complex *res) {
     for(i=0;i<9;i++) res[i] = 0;
     res[2] = c2/(norm*r) * invdlr;
     res[6] = norm*invdlr / r;
-    double visc = -nu(r);
-    double ir2 = 1./(r*r);
 
-    res[0] += visc*(2*params.nuindx+1)*ir2*invdlr;
-    res[1] += visc*I*m*(1+params.eta)*ir2*invdlr;
-    res[3] += visc*(1-params.eta)*I*m*ir2*invdlr;
-    res[4] += visc*params.nuindx*ir2*invdlr;
-    res[0] += visc*(2+params.eta)*ir2*invdlr2;
-    res[4] += visc*ir2*invdlr2;
-    res[5] += visc*I*m*(k2om-2*om)/(r*norm) *invdlr;
+   viscosity_dcoeffs_u(r,res,m,invdlr);
+   viscosity_dcoeffs_v(r,&res[params.nrhs],m,invdlr);
+    viscosity_d2coeffs_u(r,res,m,invdlr2);
+    viscosity_d2coeffs_v(r,&res[params.nrhs],m,invdlr2);
 
 
     return;

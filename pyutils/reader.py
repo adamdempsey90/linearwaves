@@ -21,6 +21,8 @@ class Mode():
         dat = dat[n:]
         self.lamdep = dat[:n]
         dat = dat[n:]
+        self.drfw = dat[:n]
+        dat = dat[n:]
         self.fw = dat[:n]
         self.phase = np.arctan2(self.s.imag,self.s.real)
         self.dlr = np.diff(np.log(self.r))[0]
@@ -38,7 +40,7 @@ class Mode():
         self.ildep[ind] = -(self.lamdep*self.r*self.dlr)[ind][::-1].cumsum()[::-1]
         self.ildep[ind] -= self.ildep[ind][-1]
 
-        self.drfw = np.gradient(self.fw)/(self.r*self.dlr)
+        #self.drfw = np.gradient(self.fw)/(self.r*self.dlr)
 
     def summary(self,logx=True):
         fig,axes = plt.subplots(1,3,figsize=(15,5))

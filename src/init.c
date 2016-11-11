@@ -9,7 +9,7 @@ void init_params(void) {
     params.mu = -.5;
     params.delta = -1;
     params.nuindx = 0;
-    params.eta = 0;
+    params.eta = 2./3;
     params.alpha = 1e-3;
     params.omf = 1;
     params.f = 0;

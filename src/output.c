@@ -1,7 +1,7 @@
 #include "linearwaves.h"
 
 
-void output(double *r, double complex *sol, double *lamex, double *lamdep, double *fw,char *fname) {
+void output(double *r, double complex *sol, double *lamex, double *lamdep, double *drfw, double *fw, char *fname) {
  
     FILE *f = fopen(fname,"w");
 
@@ -41,6 +41,7 @@ void output(double *r, double complex *sol, double *lamex, double *lamdep, doubl
 
     fwrite(lamex,sizeof(double),params.n,f);
     fwrite(lamdep,sizeof(double),params.n,f);
+    fwrite(drfw,sizeof(double),params.n,f);
     fwrite(fw,sizeof(double),params.n,f);
     fclose(f);
     return;

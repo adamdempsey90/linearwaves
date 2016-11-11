@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
     double *lamex = (double *)malloc(sizeof(double)*params.n);
     double *lamdep = (double *)malloc(sizeof(double)*params.n);
     double *fw= (double *)malloc(sizeof(double)*params.n);
+    double *drfw= (double *)malloc(sizeof(double)*params.n);
 
 
     params.dlr = log(params.rmax/params.rmin) / (double)params.n;
@@ -43,23 +44,13 @@ int main(int argc, char *argv[]) {
     toc = clock();
     timers[1] = (double)(toc - tic)/CLOCKS_PER_SEC;
 
-    double complex u,v,s;
-    double complex res_f[3];
     
     tic = clock();
-    for(i=0;i<params.n;i++) {
-        u = fd[i*3];
-        v = fd[i*3+1];
-        s = sig(r[i],fd[i*3+2]);
-        fw[i] = 2*M_PI*r[i]*r[i]*sigma(r[i])*2*creal(u * conj(v));
-        force(r[i],m,res_f);
-        lamex[i] = 2*M_PI*r[i]*2*creal(r[i]*conj(s)*res_f[1]);
-    }
-    calc_deposited_torque(r,lamdep,fd,m);
+    calc_torques(r,fw,drfw,lamex,lamdep,fd,m);
     toc = clock();
     timers[2] = (double)(toc - tic)/CLOCKS_PER_SEC;
 
-    output(r,fd,lamex,lamdep,fw,argv[2]);
+    output(r,fd,lamex,lamdep,drfw,fw,argv[2]);
 
 
     for(i=0;i<3;i++) printf("%s\t%.3e s\n",timer_names[i],timers[i]);
