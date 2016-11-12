@@ -1,62 +1,49 @@
 #include "linearwaves.h"
-#include <time.h>
+#include <mpi.h>
 
+int np, rank;
 
 int main(int argc, char *argv[]) {
-    int i;
-    clock_t tic, toc;
-    double timers[3];
-    const char *timer_names[3] = {"Matrix: ", "Solve:  ", "Torque: "};
-
-
-    int m = atoi(argv[1]); 
-
-    printf("Using m = %d\nSaving to %s\n",m,argv[2]);
-
+    MPI_Init(&argc,&argv);
+    MPI_Comm_size(MPI_COMM_WORLD,&np);
+    MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     init_planet();
     init_params();
-    double *r = (double *)malloc(sizeof(double)*params.n);
-    double complex *md =  (double complex *)malloc(sizeof(double complex)*params.n * params.nrhs * params.nrhs);
-    double complex *fd =  (double complex *)malloc(sizeof(double complex)*params.n * params.nrhs);
-    double complex *ud =  (double complex *)malloc(sizeof(double complex)*(params.n -1)* params.nrhs * params.nrhs);
-    double complex *ld =  (double complex *)malloc(sizeof(double complex)*(params.n -1)* params.nrhs * params.nrhs);
-    double *lamex = (double *)malloc(sizeof(double)*params.n);
-    double *lamdep = (double *)malloc(sizeof(double)*params.n);
-    double *fw= (double *)malloc(sizeof(double)*params.n);
-    double *drfw= (double *)malloc(sizeof(double)*params.n);
+    int mstart = atoi(argv[1]);
+    int mend = atoi(argv[2]);
+    int num_modes = (mend-mstart)/np;
 
+    Grid *grid = (Grid *)malloc(sizeof(Grid));
+    init_grid(num_modes, grid);
+    int i;
 
+    grid->n = params.n;
+    grid->nm = num_modes;
+    for(i=0;i<num_modes;i++) {
+        grid->mvals[i] = rank*num_modes + mstart + i;
+        printf("%d\t%d\n",rank,grid->mvals[i]);
+    }
     params.dlr = log(params.rmax/params.rmin) / (double)params.n;
     for(i=0;i<params.n;i++) {
-        r[i] = params.rmin * exp(i*params.dlr);
+        grid->r[i] = params.rmin * exp(i*params.dlr);
     }
 
-    tic = clock();
-    construct_matrix(r,ld,md,ud,fd,m);
-    toc = clock();
-    timers[0] = (double)(toc - tic)/CLOCKS_PER_SEC;
+    for(i=0;i<num_modes;i++) {
+        //printf("%d\t%d\n",rank,i);
+        linearwaves(i, grid);
+    }
 
+    char fname[256];
+    sprintf(fname,"%s.%d",argv[3],rank);
+    output_torques(fname,grid);
 
-    output_matrix(ld,md,ud,fd);
+    printf("%d free grid\n",rank);
+    free_grid(grid);
+    printf("%d final grid\n",rank);
+    free(grid);
+    printf("%d done\n",rank);
 
-    tic = clock();
-    cthomas_alg_block(ld,md,ud,fd,params.n,params.nrhs);
-    toc = clock();
-    timers[1] = (double)(toc - tic)/CLOCKS_PER_SEC;
+    int mpi_status  =  MPI_Finalize();
 
-    
-    tic = clock();
-    calc_torques(r,fw,drfw,lamex,lamdep,fd,m);
-    toc = clock();
-    timers[2] = (double)(toc - tic)/CLOCKS_PER_SEC;
-
-    output(r,fd,lamex,lamdep,drfw,fw,argv[2]);
-
-
-    for(i=0;i<3;i++) printf("%s\t%.3e s\n",timer_names[i],timers[i]);
-
-
-    free(r); free(md); free(fd); free(ud); free(ld);
-    free(fw); free(lamex);
-    return 1;
-}
+    return mpi_status;
+}  

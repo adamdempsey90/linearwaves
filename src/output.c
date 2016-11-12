@@ -46,6 +46,26 @@ void output(double *r, double complex *sol, double *lamex, double *lamdep, doubl
     fclose(f);
     return;
 }
+void output_torques(char *fname, Grid *grid) {
+    FILE *f = fopen(fname,"w");
+
+    printf("Outputting to %s\n",fname);
+    double n = (double)params.n;
+    double m = (double)grid->nm;
+    double mstart = (double)grid->mvals[0];
+    double mend = (double)grid->mvals[grid->nm-1];
+    fwrite(&n,sizeof(double),1,f);
+    fwrite(&m,sizeof(double),1,f);
+    fwrite(&mstart,sizeof(double),1,f);
+    fwrite(&mend,sizeof(double),1,f);
+    //fwrite((double *)grid->mvals,sizeof(double),grid->nm,f);
+    fwrite(grid->lamex,sizeof(double),params.n*grid->nm,f);
+    fwrite(grid->lamdep,sizeof(double),params.n*grid->nm,f);
+    fwrite(grid->drfw,sizeof(double),params.n*grid->nm,f);
+    fwrite(grid->fw,sizeof(double),params.n*grid->nm,f);
+    fclose(f);
+
+}
 
 void output_matrix(double complex *ld, double complex *md, double complex *ud, double complex *fd) {
 

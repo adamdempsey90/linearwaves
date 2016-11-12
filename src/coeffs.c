@@ -146,7 +146,6 @@ void construct_matrix(double *r, double complex *ld, double complex *md, double 
         fd[0] = 0; fd[1] = 0; fd[2] = 0;
     }
     else {
-        printf("Outgoing inner boundary\n");
         lw_inner_bc(r[0], m, 1, &md[0], &ud[0]);
         add_force(r[0], m, &fd[0]);
     }
@@ -166,7 +165,6 @@ void construct_matrix(double *r, double complex *ld, double complex *md, double 
         fd[i*params.nrhs] = 0; fd[i*params.nrhs+1] = 0; fd[i*params.nrhs+1] = 0;
     }
     else {
-        printf("Outgoing outer boundary\n");
         lw_outer_bc(r[i], m, 1, &md[i*size],  &ld[(i-1)*size]);
         add_force(r[i], m, &fd[i*params.nrhs]);
     }

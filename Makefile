@@ -1,5 +1,5 @@
 EXECUTABLE=linearwaves
-SOURCES=coeffs.c disk.c main.c output.c ctridiag.c planet.c init.c torques.c viscosity.c
+SOURCES=coeffs.c disk.c main.c output.c ctridiag.c planet.c init.c torques.c viscosity.c linearwaves.c
 HEADER=linearwaves.h
 
 LAPACKLIB=-llapack -lblas
@@ -32,6 +32,7 @@ ifeq ($(UNAME),jupiter)
 CC=gcc-6
 endif
 
+CC=mpicc
 #!!!!!DO NOT EDIT ANYTHING UNDER THIS LINE!!!!!
 OBJECTS=$(SOURCES:.c=.o)
 CSOURCES=$(addprefix $(SRC),$(SOURCES))

@@ -25,6 +25,14 @@ typedef struct Planet {
     int indirect;
 
 }    Planet;
+typedef struct Grid {
+    int n, nm;
+    int *mvals;
+    double *r;
+//    double complex *ld,*md,*ud,*fd;
+    double *lamdep, *lamex, *fw, *drfw;
+
+} Grid;
 
 
 Planet planet;
@@ -68,3 +76,7 @@ void viscosity_d2coeffs_u(double r, double complex *res, int m, double invdlr2);
 void viscosity_coeffs_v(double r, double complex *res, int m);
 void viscosity_dcoeffs_v(double r, double complex *res, int m, double invdlr);
 void viscosity_d2coeffs_v(double r, double complex *res, int m, double invdlr2);
+void init_grid(int num_modes, Grid *grid) ;
+void free_grid(Grid *grid) ;
+void linearwaves(int i, Grid *grid) ;
+void output_torques(char *fname, Grid *grid);
