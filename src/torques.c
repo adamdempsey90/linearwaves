@@ -1,7 +1,7 @@
 #include "linearwaves.h"
 
 
-void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, int m) {
+void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *TL, double *TR,int m) {
     double complex lf[3], uf[3], mf[3];
     double invdlr, invdlr2;
     double om;
@@ -13,6 +13,8 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
 
     invdlr = 1./(params.dlr);
     invdlr2 = invdlr*invdlr;
+    *TL = 0;
+    *TR = 0;
     for(i=1;i<params.n-1;i++) {
         for (j=0;j<params.nrhs;j++) {
             mf[j] = 0;
@@ -51,6 +53,8 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
         for(j=0;j<params.nrhs;j++) mf[j] = 0;
         force(r[i],m,mf);
         lamex[i] = r[i]*2*creal(conj(s)*mf[1]);
+        if (r[i] >= planet.a) *TR += lamex[i]*2*M_PI*r[i]*r[i]*params.dlr;
+        if (r[i] <= planet.a) *TL -= lamex[i]*2*M_PI*r[i]*r[i]*params.dlr;
     }
 
     lamdep[0] = 0;

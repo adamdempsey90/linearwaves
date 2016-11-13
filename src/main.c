@@ -21,7 +21,6 @@ int main(int argc, char *argv[]) {
     grid->nm = num_modes;
     for(i=0;i<num_modes;i++) {
         grid->mvals[i] = rank*num_modes + mstart + i;
-        printf("%d\t%d\n",rank,grid->mvals[i]);
     }
     params.dlr = log(params.rmax/params.rmin) / (double)params.n;
     for(i=0;i<params.n;i++) {
@@ -37,11 +36,8 @@ int main(int argc, char *argv[]) {
     sprintf(fname,"%s.%d",argv[3],rank);
     output_torques(fname,grid);
 
-    printf("%d free grid\n",rank);
     free_grid(grid);
-    printf("%d final grid\n",rank);
     free(grid);
-    printf("%d done\n",rank);
 
     int mpi_status  =  MPI_Finalize();
 

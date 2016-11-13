@@ -1,7 +1,55 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import copy
 
+class Disk():
+    def __init__(self,fname='outputs/res.dat.0'):
 
+        dat = np.fromfile(fname)
+        self.n,self.nm,self.mi,self.mf = dat[:4].astype(int)
+        dat=dat[4:]
+
+        self.TL = dat[:self.nm]
+        dat=dat[self.nm:]
+        self.TR = dat[:self.nm]
+        dat=dat[self.nm:]
+        self.r = dat[:self.n]
+        dat=dat[self.n:]
+        self.lamex = dat[:self.n*self.nm].reshape(self.nm,self.n).T
+        dat=dat[self.n*self.nm:]
+        self.lamdep = dat[:self.n*self.nm].reshape(self.nm,self.n).T
+        dat=dat[self.n*self.nm:]
+        self.drfw = dat[:self.n*self.nm].reshape(self.nm,self.n).T
+        dat=dat[self.n*self.nm:]
+        self.fw = dat[:self.n*self.nm].reshape(self.nm,self.n).T
+        dat=dat[self.n*self.nm:]
+
+    def torque(self,i,logx=True,xlims=None,ax=None):
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+        ax.plot(self.r,self.lamex[:,i],'-k')
+        ax.plot(self.r,self.drfw[:,i],'-r')
+        ax.plot(self.r,self.lamdep[:,i],'-b')
+        if logx:
+            ax.set_xscale('log')
+        if xlims is not None:
+            ax.set_xlim(xlims)
+
+    def __add__(self,fld):
+        out = copy.deepcopy(self)
+        out.TL = np.hstack((self.TL,fld.TL))
+        out.TR = np.hstack((self.TR,fld.TR))
+        out.lamex = np.hstack((self.lamex,fld.lamex))
+        out.lamdep = np.hstack((self.lamdep,fld.lamdep))
+        out.drfw = np.hstack((self.drfw,fld.drfw))
+        out.fw = np.hstack((self.fw,fld.fw))
+
+        out.mi = min(self.mi,fld.mi)
+        out.mf = max(self.mf,fld.mf)
+        out.nm = self.nm + fld.nm
+
+        return out
 
 class Mode():
     def __init__(self,fname='outputs/res.dat'):
@@ -84,3 +132,6 @@ class Mode():
 
         if logx:
             ax.set_xscale('log')
+
+
+

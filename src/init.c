@@ -15,9 +15,9 @@ void init_params(void) {
     params.f = 0;
     params.sig0 = 1;
     params.rmin = .01;
-    params.rmax = 30;
+    params.rmax = 5;
     params.iso = TRUE;
-    params.pcorrect = FALSE;
+    params.pcorrect = TRUE;
     params.ieps = 0;
     params.zero_inner_bc = FALSE;
     params.zero_outer_bc = FALSE;

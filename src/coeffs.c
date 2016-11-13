@@ -141,7 +141,7 @@ void construct_matrix(double *r, double complex *ld, double complex *md, double 
     int size = params.nrhs*params.nrhs;
     int n = params.n;
 
-    if (params.zero_inner_bc) {
+    if ((params.zero_inner_bc) || (m==1)) {
         zero_inner_bc(&md[0], &ud[0]);
         fd[0] = 0; fd[1] = 0; fd[2] = 0;
     }

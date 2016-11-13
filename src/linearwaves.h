@@ -31,6 +31,7 @@ typedef struct Grid {
     double *r;
 //    double complex *ld,*md,*ud,*fd;
     double *lamdep, *lamex, *fw, *drfw;
+    double *TL, *TR;
 
 } Grid;
 
@@ -69,7 +70,7 @@ void output(double *r, double complex *sol, double *lamex, double *lamdep, doubl
 void init_params(void);
 void init_planet(void);
 void output_matrix(double complex *ld, double complex *md, double complex *ud, double complex *fd);
-void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, int m) ;
+void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *TL, double *TR, int m) ;
 void viscosity_coeffs_u(double r, double complex *res, int m);
 void viscosity_dcoeffs_u(double r, double complex *res, int m, double invdlr);
 void viscosity_d2coeffs_u(double r, double complex *res, int m, double invdlr2);
