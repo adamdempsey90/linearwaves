@@ -87,7 +87,22 @@ void force(double x, int m, double complex *res) {
     return;
 }
 
-/*
+void fft_init(void) {
+    
+
+
+
+}
+
+void do_fft(double *in, double complex *out) {
+    
+    fftw_excecute(pr2c);
+
+
+
+}
+
+
 int main(int argc, char *argv[]) {
 
     planet.mp = 1e-5;
@@ -105,17 +120,16 @@ int main(int argc, char *argv[]) {
     int NR = atoi(argv[2]);
 
 
-    double complex *res = (double complex *)malloc(sizeof(double complex)*NM*NR);
-    double complex *dr_res = (double complex *)malloc(sizeof(double complex)*NM*NR);
+    double complex *res = (double complex *)malloc(sizeof(double complex)*NM*NR*3);
     
     int m;
     double x;
     int j,indx;
-    for(m=1;m<=NM;m++) {
+    for(m=0;m<NM;m++) {
         for(j=0;j<NR;j++) {
             x = .6 + j*(2.-.6)/NR;
-            indx = j + (m-1)*NR;
-            force(x,m,&res[indx],&dr_res[indx]);
+            indx = j*3 + m*NR*3;
+            force(x,m,&res[indx]);
         }
     }
 
@@ -123,11 +137,9 @@ int main(int argc, char *argv[]) {
     FILE *f = fopen("pot_test.dat","w");
 
     fwrite(res,sizeof(double complex),NM*NR,f);
-    fwrite(dr_res,sizeof(double complex),NM*NR,f);
     fclose(f);
 
 
 
     return 1;
 }
-*/

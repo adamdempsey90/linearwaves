@@ -3,14 +3,14 @@
 void init_params(void) {
 
 
-    params.n = 32000;
+    params.n = 4096;
     params.nrhs =3;
     params.h = .05;
     params.mu = -.5;
     params.delta = -1;
-    params.nuindx = 0;
+    params.nuindx = .5;
     params.eta = 2./3;
-    params.alpha = 1e-3;
+    params.alpha = 1e-1;
     params.omf = 1;
     params.f = 0;
     params.sig0 = 1;
