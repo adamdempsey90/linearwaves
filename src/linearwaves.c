@@ -20,8 +20,14 @@ void linearwaves(int i, Grid *grid) {
     double complex *s = &grid->s[(i)*grid->n];
     double *dppot = &grid->dppot[(i)*grid->n];
     double *drpot = &grid->drpot[(i)*grid->n];
-
-    printf("Working on m=%d\n",m);
+    FILE *f;
+    int j;
+    if (m==10) {
+        f = fopen("potential.dat","w");
+        for(j=0;j<params.n;j++) fprintf(f,"%lg\n",dppot[j]);
+        fclose(f);
+    }
+    //printf("Working on m=%d\n",m);
     construct_matrix(r,ld,md,ud,fd,dppot,drpot,m);
     cthomas_alg_block(ld,md,ud,fd,params.n,params.nrhs);
 

@@ -62,8 +62,8 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
         fw[i] = r[i]*r[i]*sigma(r[i])*2*creal(u * conj(v));
         drfw[i] = (2*sigma(r[i]) + r[i]*dsdr(r[i]))*2*creal(u*conj(v)) + .5*invdlr*sigma(r[i])*2*creal(du*conj(v)+u*conj(dv));
         for(j=0;j<params.nrhs;j++) mf[j] = 0;
-        //lamex[i] = -2*m*creal(cimag(s)*dppot[i]);
-        lamex[i] = r[i]*2*creal(conj(s)*-dppot[i]*I*m/r[i]);
+        lamex[i] = -2*m*creal(cimag(s)*dppot[i]);
+        //lamex[i] = r[i]*2*creal(conj(s)*-dppot[i]*I*m/r[i]);
         if (r[i] >= planet.a) *TR += lamex[i]*2*M_PI*r[i]*r[i]*params.dlr;
         if (r[i] <= planet.a) *TL -= lamex[i]*2*M_PI*r[i]*r[i]*params.dlr;
     }
@@ -77,7 +77,7 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
     fw[params.n-1] = 0;
     drfw[params.n-1] = 0;
     lamex[params.n-1] = 0;
-
+    if (m<=20)  printf("%d\t%lg\t%lg\n",m,*TL,*TR);
 
     return;
 

@@ -67,6 +67,7 @@ void output_torques(char *fname, Grid *grid) {
     fwrite(grid->lamdep,sizeof(double),params.n*grid->nm,f);
     fwrite(grid->drfw,sizeof(double),params.n*grid->nm,f);
     fwrite(grid->fw,sizeof(double),params.n*grid->nm,f);
+    fwrite(grid->dppot,sizeof(double),params.n*grid->nm,f);
     double rval;
     double ival;
     int j,i;

@@ -7,6 +7,7 @@ class Disk():
         fname = fname +'.{:d}'.format(p)
         dat = np.fromfile(fname)
         self.n,self.nm,self.mi,self.mf = dat[:4].astype(int)
+        print(p,self.n,self.nm,self.mi,self.mf)
         dat=dat[4:]
 
         self.TL = dat[:self.nm]
@@ -23,18 +24,31 @@ class Disk():
         dat=dat[self.n*self.nm:]
         self.fw = dat[:self.n*self.nm].reshape(self.nm,self.n).T
         dat=dat[self.n*self.nm:]
+        self.pot = dat[:self.n*self.nm].reshape(self.nm,self.n).T
+        dat=dat[self.n*self.nm:]
 
         self.u = np.zeros((self.n,self.nm),dtype='complex')
         self.v = np.zeros((self.n,self.nm),dtype='complex')
         self.s = np.zeros((self.n,self.nm),dtype='complex')
-        for indx,i in enumerate(np.arange(self.nm)+self.mi-1):
-            dat = np.loadtxt('outputs/sol{:d}.dat.{:d}'.format(i+1,p))
+        for indx,i in enumerate(np.arange(self.nm)+self.mi):
+            dat = np.loadtxt('outputs/sol{:d}.dat.{:d}'.format(i,p))
             self.u[:,indx] = dat[:,0] + 1j*dat[:,1]
             self.v[:,indx] = dat[:,2] + 1j*dat[:,3]
             self.s[:,indx] = dat[:,4] + 1j*dat[:,5]
 
 
         self.dlr = np.diff(np.log(self.r))[0]
+    def total_torque(self,logx=False,xlims=None,ax=None):
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+        mvals = 1 + np.arange(len(self.TR))
+        ax.plot(mvals,self.TR,'ok',label='Outer')
+        ax.plot(mvals,self.TL,'sr',label='Inner')
+        if logx:
+            ax.set_xscale('log')
+        ax.legend(loc='upper right')
+        ax.set_xlabel('m',fontsize=15)
     def torque(self,m,logx=True,xlims=None,ax=None,integ=False):
         if ax is None:
             fig = plt.figure()

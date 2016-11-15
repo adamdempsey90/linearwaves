@@ -32,7 +32,7 @@ double dr_potential(double phi, double x) {
 
 
 void fft_potential(double *r, double *pot1, double *pot2, int num_modes) {
-    int nphi = num_modes*10;
+    int nphi = params.nphi;
     int rank = 1; 
     int n[] = {nphi}; 
     int howmany = params.n;

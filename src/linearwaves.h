@@ -9,7 +9,7 @@
 
 typedef struct Params {
     
-    int n,nrhs,nm;
+    int n,nrhs,nm,nphi;
 
     double h, mu, delta, nuindx, eta, alpha,omf,f,sig0;
     double dlr,rmin,rmax,tol;
@@ -37,6 +37,16 @@ typedef struct Grid {
     double  *dppot, *drpot;
 
 } Grid;
+
+typedef struct Disk {
+    double *sigma;
+    double *omega;
+    double *drsigma;
+    double *dr2sigma;
+    double *dromega;
+    double *kappa2;
+
+} Disk;
 
 
 Planet planet;

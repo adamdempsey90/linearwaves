@@ -26,18 +26,15 @@ int main(int argc, char *argv[]) {
     for(i=0;i<params.n;i++) {
         grid->r[i] = params.rmin * exp(i*params.dlr);
     }
-    printf("%d\t%d\n",grid->n,params.nm);
-    double *dp_pot_full = (double *)malloc(sizeof(double)*grid->n*(params.nm));
-    double *dr_pot_full = (double *)malloc(sizeof(double)*grid->n*(params.nm));
+    double *dp_pot_full = (double *)malloc(sizeof(double)*params.n*(params.nm));
+    double *dr_pot_full = (double *)malloc(sizeof(double)*params.n*(params.nm));
 /* Do FFT of potentail on root */
     if (rank == 0) {
-        printf("Fourier transforming\n");
         fft_potential(grid->r,dp_pot_full,dr_pot_full,params.nm);
-        printf("Sending\n");
     }
-    MPI_Scatter(dp_pot_full,grid->n*grid->nm,MPI_DOUBLE,grid->dppot,grid->n*grid->nm,MPI_DOUBLE,0, MPI_COMM_WORLD);
+    MPI_Scatter(dp_pot_full,grid->n*num_modes,MPI_DOUBLE,grid->dppot,grid->n*num_modes,MPI_DOUBLE,0, MPI_COMM_WORLD);
 
-    MPI_Scatter(dr_pot_full,grid->n*grid->nm,MPI_DOUBLE,grid->drpot,grid->n*grid->nm,MPI_DOUBLE,0, MPI_COMM_WORLD);
+    MPI_Scatter(dr_pot_full,grid->n*num_modes,MPI_DOUBLE,grid->drpot,grid->n*num_modes,MPI_DOUBLE,0, MPI_COMM_WORLD);
     free(dp_pot_full);
     free(dr_pot_full);
     for(i=0;i<num_modes;i++) {
