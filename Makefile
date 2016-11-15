@@ -1,13 +1,14 @@
 EXECUTABLE=linearwaves
-SOURCES=coeffs.c disk.c main.c output.c ctridiag.c planet.c init.c torques.c viscosity.c linearwaves.c
+SOURCES=coeffs.c disk.c main.c output.c ctridiag.c fft.c init.c torques.c viscosity.c linearwaves.c
 HEADER=linearwaves.h
 
 LAPACKLIB=-llapack -lblas
 OMPLIB=-lgomp
 MATHLIB=-lm
 GSLLIB=-lgsl
+FFTWLIB=-lfftw3
 
-LDFLAGS= $(MATHLIB) $(LAPACKLIB) $(GSLLIB)
+LDFLAGS= $(MATHLIB) $(LAPACKLIB) $(FFTWLIB)
 
 CFLAGS=-c -Wall -O3 
 

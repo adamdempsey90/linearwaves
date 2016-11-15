@@ -1,7 +1,7 @@
 #include "linearwaves.h"
 
 
-void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *TL, double *TR,int m) {
+void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *dppot, double *TL, double *TR,int m) {
     double complex lf[3], uf[3], mf[3];
     double invdlr, invdlr2;
     double om;
@@ -62,8 +62,8 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
         fw[i] = r[i]*r[i]*sigma(r[i])*2*creal(u * conj(v));
         drfw[i] = (2*sigma(r[i]) + r[i]*dsdr(r[i]))*2*creal(u*conj(v)) + .5*invdlr*sigma(r[i])*2*creal(du*conj(v)+u*conj(dv));
         for(j=0;j<params.nrhs;j++) mf[j] = 0;
-        force(r[i],m,mf);
-        lamex[i] = r[i]*2*creal(conj(s)*mf[1]);
+        //lamex[i] = -2*m*creal(cimag(s)*dppot[i]);
+        lamex[i] = r[i]*2*creal(conj(s)*-dppot[i]*I*m/r[i]);
         if (r[i] >= planet.a) *TR += lamex[i]*2*M_PI*r[i]*r[i]*params.dlr;
         if (r[i] <= planet.a) *TL -= lamex[i]*2*M_PI*r[i]*r[i]*params.dlr;
     }

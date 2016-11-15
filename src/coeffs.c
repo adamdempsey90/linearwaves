@@ -67,7 +67,6 @@ void lower_diag(double r, int m, double complex *res) {
 
 void add_force(double r, int m, double complex *res) {
 
-    force(r,m,res);
 
     return;
 }
@@ -135,7 +134,7 @@ void lw_outer_bc(double rn, int m, int eps, double complex *mdn,  double complex
     return;
 } 
 
-void construct_matrix(double *r, double complex *ld, double complex *md, double complex *ud, double complex *fd, int m) {
+void construct_matrix(double *r, double complex *ld, double complex *md, double complex *ud, double complex *fd, double *dppot, double *drpot, int m) {
     int i;
     int size = params.nrhs*params.nrhs;
     int n = params.n;
@@ -152,7 +151,10 @@ void construct_matrix(double *r, double complex *ld, double complex *md, double 
         main_diag(r[i],m, &md[i*size]);
         upper_diag(r[i],m, &ud[i*size]);
         lower_diag(r[i],m, &ld[(i-1)*size]);
-        add_force(r[i], m, &fd[i*params.nrhs]);
+        fd[i*params.nrhs] = -drpot[i];
+        fd[i*params.nrhs+1] = -dppot[i]*I*m/r[i];
+        fd[i*params.nrhs+2] = 0;
+        //add_force(r[i], m, &fd[i*params.nrhs]);
     }
 
     i = n-1;

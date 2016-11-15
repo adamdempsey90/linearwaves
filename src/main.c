@@ -10,7 +10,8 @@ int main(int argc, char *argv[]) {
     init_params();
     int mstart = atoi(argv[1]);
     int mend = atoi(argv[2]);
-    int num_modes = (mend-mstart+1)/np;
+    params.nm = mend-mstart+1;
+    int num_modes = params.nm/np;
 
     Grid *grid = (Grid *)malloc(sizeof(Grid));
     init_grid(num_modes, grid);
@@ -25,9 +26,21 @@ int main(int argc, char *argv[]) {
     for(i=0;i<params.n;i++) {
         grid->r[i] = params.rmin * exp(i*params.dlr);
     }
+    printf("%d\t%d\n",grid->n,params.nm);
+    double *dp_pot_full = (double *)malloc(sizeof(double)*grid->n*(params.nm));
+    double *dr_pot_full = (double *)malloc(sizeof(double)*grid->n*(params.nm));
+/* Do FFT of potentail on root */
+    if (rank == 0) {
+        printf("Fourier transforming\n");
+        fft_potential(grid->r,dp_pot_full,dr_pot_full,params.nm);
+        printf("Sending\n");
+    }
+    MPI_Scatter(dp_pot_full,grid->n*grid->nm,MPI_DOUBLE,grid->dppot,grid->n*grid->nm,MPI_DOUBLE,0, MPI_COMM_WORLD);
 
+    MPI_Scatter(dr_pot_full,grid->n*grid->nm,MPI_DOUBLE,grid->drpot,grid->n*grid->nm,MPI_DOUBLE,0, MPI_COMM_WORLD);
+    free(dp_pot_full);
+    free(dr_pot_full);
     for(i=0;i<num_modes;i++) {
-        //printf("%d\t%d\n",rank,i);
         linearwaves(i, grid);
     }
 

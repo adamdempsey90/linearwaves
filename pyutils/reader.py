@@ -27,11 +27,11 @@ class Disk():
         self.u = np.zeros((self.n,self.nm),dtype='complex')
         self.v = np.zeros((self.n,self.nm),dtype='complex')
         self.s = np.zeros((self.n,self.nm),dtype='complex')
-        for i in (np.arange(self.nm)+self.mi-1):
+        for indx,i in enumerate(np.arange(self.nm)+self.mi-1):
             dat = np.loadtxt('outputs/sol{:d}.dat.{:d}'.format(i+1,p))
-            self.u[:,i] = dat[:,0] + 1j*dat[:,1]
-            self.v[:,i] = dat[:,2] + 1j*dat[:,3]
-            self.s[:,i] = dat[:,4] + 1j*dat[:,5]
+            self.u[:,indx] = dat[:,0] + 1j*dat[:,1]
+            self.v[:,indx] = dat[:,2] + 1j*dat[:,3]
+            self.s[:,indx] = dat[:,4] + 1j*dat[:,5]
 
 
         self.dlr = np.diff(np.log(self.r))[0]
