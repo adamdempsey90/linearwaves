@@ -1,7 +1,6 @@
 #include "linearwaves.h"
 #include <mpi.h>
 
-int np, rank;
 
 int main(int argc, char *argv[]) {
     MPI_Init(&argc,&argv);
@@ -11,7 +10,7 @@ int main(int argc, char *argv[]) {
     init_params();
     int mstart = atoi(argv[1]);
     int mend = atoi(argv[2]);
-    int num_modes = (mend-mstart)/np;
+    int num_modes = (mend-mstart+1)/np;
 
     Grid *grid = (Grid *)malloc(sizeof(Grid));
     init_grid(num_modes, grid);

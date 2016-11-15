@@ -1,6 +1,7 @@
 #include "linearwaves.h"
 
 
+
 void output(double *r, double complex *sol, double *lamex, double *lamdep, double *drfw, double *fw, char *fname) {
  
     FILE *f = fopen(fname,"w");
@@ -66,7 +67,44 @@ void output_torques(char *fname, Grid *grid) {
     fwrite(grid->lamdep,sizeof(double),params.n*grid->nm,f);
     fwrite(grid->drfw,sizeof(double),params.n*grid->nm,f);
     fwrite(grid->fw,sizeof(double),params.n*grid->nm,f);
+    double rval;
+    double ival;
+    int j,i;
+    /*
+    for(j=0;j<grid->nm;j++) {
+        for(i=0;i<grid->n;i++) {
+            rval = creal(grid->u[i + j*grid->n]);
+            fwrite(&rval,sizeof(double),1,f);
+        }
+        for(i=0;i<grid->n;i++) {
+            ival = cimag(grid->u[i + j*grid->n]);
+            fwrite(&ival,sizeof(double),1,f);
+        }
+    }
+    for(j=0;j<grid->nm;j++) {
+        for(i=0;i<grid->n;i++) {
+            rval = creal(grid->v[i + j*grid->n]);
+            fwrite(&rval,sizeof(double),1,f);
+        }
+        for(i=0;i<grid->n;i++) {
+            ival = cimag(grid->v[i + j*grid->n]);
+            fwrite(&ival,sizeof(double),1,f);
+        }
+    }
+    for(j=0;j<grid->nm;j++) {
+        for(i=0;i<grid->n;i++) {
+            rval = creal(grid->s[i + j*grid->n]);
+            fwrite(&rval,sizeof(double),1,f);
+        }
+        for(i=0;i<grid->n;i++) {
+            ival = cimag(grid->s[i + j*grid->n]);
+            fwrite(&ival,sizeof(double),1,f);
+        }
+    }
+    */
     fclose(f);
+
+
 
 }
 

@@ -12,9 +12,10 @@ typedef struct Params {
     int n,nrhs;
 
     double h, mu, delta, nuindx, eta, alpha,omf,f,sig0;
-    double dlr,rmin,rmax;
+    double dlr,rmin,rmax,tol;
     double ieps;
     int iso,pcorrect,zero_inner_bc, zero_outer_bc;
+    int simple_visc;
 
 
 }    Params;
@@ -32,6 +33,7 @@ typedef struct Grid {
 //    double complex *ld,*md,*ud,*fd;
     double *lamdep, *lamex, *fw, *drfw;
     double *TL, *TR;
+    double complex *u, *v, *s;
 
 } Grid;
 
@@ -39,6 +41,7 @@ typedef struct Grid {
 Planet planet;
 Params params;
 double *r;
+int np, rank;
 
 
 double scaleH(double x) ;

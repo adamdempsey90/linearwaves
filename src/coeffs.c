@@ -1,6 +1,5 @@
 #include "linearwaves.h"
 
-#define INDX(i,j) j + 3*i
 
 void main_diag(double r, int m, double complex *res) {
     double om = omega(r);
@@ -149,9 +148,6 @@ void construct_matrix(double *r, double complex *ld, double complex *md, double 
         lw_inner_bc(r[0], m, 1, &md[0], &ud[0]);
         add_force(r[0], m, &fd[0]);
     }
-#ifdef _OPENMP
-#pragma omp parallel for private(i)
-#endif
     for(i=1;i<n-1;i++) {
         main_diag(r[i],m, &md[i*size]);
         upper_diag(r[i],m, &ud[i*size]);

@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import copy
 
 class Disk():
-    def __init__(self,fname='outputs/res.dat.0'):
-
+    def __init__(self,fname='outputs/res.dat',p=0):
+        fname = fname +'.{:d}'.format(p)
         dat = np.fromfile(fname)
         self.n,self.nm,self.mi,self.mf = dat[:4].astype(int)
         dat=dat[4:]
@@ -24,18 +24,58 @@ class Disk():
         self.fw = dat[:self.n*self.nm].reshape(self.nm,self.n).T
         dat=dat[self.n*self.nm:]
 
-    def torque(self,i,logx=True,xlims=None,ax=None):
+        self.u = np.zeros((self.n,self.nm),dtype='complex')
+        self.v = np.zeros((self.n,self.nm),dtype='complex')
+        self.s = np.zeros((self.n,self.nm),dtype='complex')
+        for i in (np.arange(self.nm)+self.mi-1):
+            dat = np.loadtxt('outputs/sol{:d}.dat.{:d}'.format(i+1,p))
+            self.u[:,i] = dat[:,0] + 1j*dat[:,1]
+            self.v[:,i] = dat[:,2] + 1j*dat[:,3]
+            self.s[:,i] = dat[:,4] + 1j*dat[:,5]
+
+
+        self.dlr = np.diff(np.log(self.r))[0]
+    def torque(self,m,logx=True,xlims=None,ax=None,integ=False):
         if ax is None:
             fig = plt.figure()
             ax = fig.add_subplot(111)
-        ax.plot(self.r,self.lamex[:,i],'-k')
-        ax.plot(self.r,self.drfw[:,i],'-r')
-        ax.plot(self.r,self.lamdep[:,i],'-b')
+
+        i = m-1
+
+        lamex = self.lamex[:,i].copy()
+        lamdep = self.lamdep[:,i].copy()
+        if integ:
+            fw  = 2*np.pi*(self.fw[:,i])
+            ind = self.r >= 1
+            ilamex = np.zeros(lamex.shape)
+            ilamex[ind] = (lamex*2*np.pi*self.r*self.r*self.dlr)[ind].cumsum()
+            ilamdep= np.zeros(lamdep.shape)
+            ilamdep[ind] = (lamdep*2*np.pi*self.r*self.r*self.dlr)[ind].cumsum()
+            ind = self.r <= 1
+            ilamex[ind] = -(lamex*2*np.pi*self.r*self.r*self.dlr)[ind][::-1].cumsum()[::-1]
+            ilamdep[ind] = -(lamdep*2*np.pi*self.r*self.r*self.dlr)[ind][::-1].cumsum()[::-1]
+            lamdep = ilamdep
+            lamex = ilamex
+        else:
+            fw = self.drfw[:,i].copy()
+
+        ax.plot(self.r,lamex,'-k')
+        ax.plot(self.r,fw,'-r')
+        ax.plot(self.r,lamdep,'-b')
         if logx:
             ax.set_xscale('log')
         if xlims is not None:
             ax.set_xlim(xlims)
+    def plot(self,m,logx=True):
+        fig,axes = plt.subplots(1,3,figsize=(15,5))
+        i = m-1
+        axes[0].plot(self.r,self.u.real[:,i],self.r,self.u.imag[:,i])
+        axes[1].plot(self.r,self.v.real[:,i],self.r,self.v.imag[:,i])
+        axes[2].plot(self.r,self.s.real[:,i],self.r,self.s.imag[:,i])
 
+        if logx:
+            for ax in axes:
+                ax.set_xscale('log')
     def __add__(self,fld):
         out = copy.deepcopy(self)
         out.TL = np.hstack((self.TL,fld.TL))
@@ -44,6 +84,9 @@ class Disk():
         out.lamdep = np.hstack((self.lamdep,fld.lamdep))
         out.drfw = np.hstack((self.drfw,fld.drfw))
         out.fw = np.hstack((self.fw,fld.fw))
+        out.u = np.hstack((self.u,fld.u))
+        out.v = np.hstack((self.v,fld.v))
+        out.s = np.hstack((self.s,fld.s))
 
         out.mi = min(self.mi,fld.mi)
         out.mf = max(self.mf,fld.mf)

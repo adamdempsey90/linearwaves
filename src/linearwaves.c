@@ -15,10 +15,20 @@ void linearwaves(int i, Grid *grid) {
     double *drfw = &grid->drfw[(i)*grid->n];
     double *TL = &grid->TL[i];
     double *TR = &grid->TR[i];
+    double complex *u = &grid->u[(i)*grid->n];
+    double complex *v = &grid->v[(i)*grid->n];
+    double complex *s = &grid->s[(i)*grid->n];
 
-
+    printf("Working on m=%d\n",m);
     construct_matrix(r,ld,md,ud,fd,m);
     cthomas_alg_block(ld,md,ud,fd,params.n,params.nrhs);
+
+    for(i=0;i<grid->n;i++) {
+        u[i] = fd[i*params.nrhs];
+        v[i] = fd[i*params.nrhs+1];
+        s[i] = sig(r[i],fd[i*params.nrhs+2]);
+    }
+
     calc_torques(r,fw,drfw,lamex,lamdep,fd,TL,TR,m);
     
     free(md);
@@ -38,6 +48,9 @@ void init_grid(int num_modes, Grid *grid) {
     grid->drfw= (double *)malloc(sizeof(double)*params.n*num_modes);
     grid->TL = (double *)malloc(sizeof(double)*num_modes);
     grid->TR = (double *)malloc(sizeof(double)*num_modes);
+    grid->u = (double complex *)malloc(sizeof(double)*num_modes*params.n);
+    grid->v = (double complex *)malloc(sizeof(double)*num_modes*params.n);
+    grid->s = (double complex *)malloc(sizeof(double)*num_modes*params.n);
 
     return;
 }
@@ -50,5 +63,8 @@ void free_grid(Grid *grid) {
     free(grid->drfw);
     free(grid->TL);
     free(grid->TR);
+    free(grid->u);
+    free(grid->v);
+    free(grid->s);
     return;
 }

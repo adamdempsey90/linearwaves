@@ -10,7 +10,15 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
     double complex du, dv;
     int i,j;
     int size = params.nrhs;
-
+    FILE *f;
+    char fname[256];
+    sprintf(fname,"outputs/sol%d.dat.%d",m,rank);
+    f = fopen(fname,"w");
+    for(j=0;j<params.n;j++) {
+       fprintf(f,"%.16f\t%.16f\t%.16f\t%.16f\t%.16f\t%.16f\n",creal(sol[j*3]),cimag(sol[j*3]),
+               creal(sol[j*3+1]),cimag(sol[j*3+1]),
+               creal(sol[j*3+2]),cimag(sol[j*3+2]));
+    }
     invdlr = 1./(params.dlr);
     invdlr2 = invdlr*invdlr;
     *TL = 0;
@@ -28,6 +36,8 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
         dv = sol[(i+1)*params.nrhs+1] - sol[(i-1)*params.nrhs+1];
         du = sol[(i+1)*params.nrhs] - sol[(i-1)*params.nrhs];
         s = sig(r[i],sol[i*params.nrhs+2]);
+
+
 
         om = omega(r[i]);
         k2om = kappa2(r[i])/(2*om);
@@ -47,6 +57,7 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
         lamdep[i] += 2*creal(conj(s) * res);
         lamdep[i] += 2*creal(conj(s)*u)*r[i]*k2om;
         lamdep[i] -= sigma(r[i])*2*creal(u*conj(dv*.5*invdlr + v));
+        lamdep[i] += params.ieps*2*creal(u*conj(s))*r[i];
 
         fw[i] = r[i]*r[i]*sigma(r[i])*2*creal(u * conj(v));
         drfw[i] = (2*sigma(r[i]) + r[i]*dsdr(r[i]))*2*creal(u*conj(v)) + .5*invdlr*sigma(r[i])*2*creal(du*conj(v)+u*conj(dv));

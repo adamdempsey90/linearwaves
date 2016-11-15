@@ -1,12 +1,12 @@
 #include "linearwaves.h"
 #include <gsl/gsl_integration.h>
-#include <fftw3.h>
+//#include <fftw3.h>
 typedef struct GSL_params {
     double x;
     int m;
 } GSL_params;
 
-fftw_plan pr2r,pr2r1d;
+//fftw_plan pr2r,pr2r1d;
 
 void init_planet(void) {
 
@@ -72,7 +72,7 @@ void force(double x, int m, double complex *res) {
     F1.params = &p;
     F2.params = &p;
     
-    double tol = 1e-7;
+    double tol = params.tol;
     double error;
 
     double res_r, dr_res_r;
@@ -82,21 +82,20 @@ void force(double x, int m, double complex *res) {
     dr_res_r *= planet.mp/M_PI;
 
     res[0] = -dr_res_r ;
-    res[1] = res_r ;//* -I * m/x;
+    res[1] = res_r * -I * m/x;
     res[2] = 0;
     gsl_integration_workspace_free(w); 
     return;
 }
-
+/*
 void fft_init(double *in, double *out,int nphi) {
     int rank = 1; 
-    int n[] = {nphi}; /* 1d transforms of length 10 */
+    int n[] = {nphi}; 
     int howmany = params.n;
     int idist = nphi;
     int odist = nphi;
     int istride = 1;
-    int ostride = 1; /* distance between two elements in 
-                                                               the same column */
+    int ostride = 1; 
     int *inembed = n, *onembed = n;
     fftw_r2r_kind kind[] = {FFTW_REDFT00};
 
@@ -115,8 +114,8 @@ void free_fft(double *in, double *out) {
     fftw_destroy_plan(pr2r);
     fftw_destroy_plan(pr2r1d);
 }
-
-
+*/
+/*
 int main(int argc, char *argv[]) {
 
     planet.mp = 1;
@@ -165,3 +164,4 @@ int main(int argc, char *argv[]) {
 
     return 1;
 }
+*/
