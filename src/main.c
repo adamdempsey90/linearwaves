@@ -15,16 +15,19 @@ int main(int argc, char *argv[]) {
 
     Grid *grid = (Grid *)malloc(sizeof(Grid));
     init_grid(num_modes, grid);
+    grid->n = params.n;
+    params.dlr = log(params.rmax/params.rmin) / (double)params.n;
     int i;
+    for(i=0;i<params.n;i++) {
+        grid->lr[i] = log(params.rmin) + params.dlr*i;
+        grid->r[i] = exp(grid->lr[i]);
+    }
+    init_disk(argv[3],grid->lr);
 
     grid->n = params.n;
     grid->nm = num_modes;
     for(i=0;i<num_modes;i++) {
         grid->mvals[i] = rank*num_modes + mstart + i;
-    }
-    params.dlr = log(params.rmax/params.rmin) / (double)params.n;
-    for(i=0;i<params.n;i++) {
-        grid->r[i] = params.rmin * exp(i*params.dlr);
     }
     double *dp_pot_full = (double *)malloc(sizeof(double)*params.n*(params.nm));
     double *dr_pot_full = (double *)malloc(sizeof(double)*params.n*(params.nm));
@@ -42,11 +45,16 @@ int main(int argc, char *argv[]) {
     }
 
     char fname[256];
-    sprintf(fname,"%s.%d",argv[3],rank);
+    sprintf(fname,"%s.%d",argv[4],rank);
     output_torques(fname,grid);
+    if (rank == 0) {
+        sprintf(fname,"%s.disk",argv[4]);
+        output_disk(fname);
+    }
 
     free_grid(grid);
     free(grid);
+    free_disk();
 
     int mpi_status  =  MPI_Finalize();
 

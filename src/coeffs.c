@@ -1,10 +1,11 @@
 #include "linearwaves.h"
 
 
-void main_diag(double r, int m, double complex *res) {
-    double om = omega(r);
-    double c2 = cs2(r);
-    double k2om = kappa2(r)/(2*om);
+void main_diag(int indx, double r, int m, double complex *res) {
+    double om = disk.omega[indx];
+    double c2 = disk.c2[indx];
+    double mu = disk.dlsdlr[indx];
+    double k2om = disk.kappa2[indx]/(2*om);
     double invdlr2 = -2./(params.dlr*params.dlr);
     double norm = (params.iso) ? 1.0 : c2;
     int i;
@@ -16,20 +17,20 @@ void main_diag(double r, int m, double complex *res) {
     res[3] = k2om;                     
     res[4] = I*(m*(om - params.omf) -params.ieps*I);     
     res[5] = I*m*c2/(norm*r);                     
-    res[6] = (params.mu + 1)*norm/r;                     
+    res[6] = (mu + 1)*norm/r;                     
     res[7] = I*m*norm/r;                     
     res[8] = I*(m*(om - params.omf)-params.ieps*I);    
 
-    viscosity_coeffs_u(r,res,m);
-    viscosity_d2coeffs_u(r,res,m,invdlr2);
-    viscosity_coeffs_v(r,&res[params.nrhs],m);
-    viscosity_d2coeffs_v(r,&res[params.nrhs],m,invdlr2);
+    viscosity_coeffs_u(indx,r,res,m);
+    viscosity_d2coeffs_u(indx,r,res,m,invdlr2);
+    viscosity_coeffs_v(indx,r,&res[params.nrhs],m);
+    viscosity_d2coeffs_v(indx,r,&res[params.nrhs],m,invdlr2);
     return;
 }
 
-void upper_diag(double r, int m, double complex *res) {
+void upper_diag(int indx, double r, int m, double complex *res) {
 
-   double c2 = cs2(r);
+   double c2 = disk.c2[indx];
    double invdlr = .5/params.dlr;
    double invdlr2 = 1./(params.dlr*params.dlr);
    double norm = (params.iso) ? 1.0 : c2;
@@ -38,16 +39,16 @@ void upper_diag(double r, int m, double complex *res) {
    res[2] = c2/(norm*r) * invdlr;
    res[6] = norm*invdlr / r;
 
-   viscosity_dcoeffs_u(r,res,m,invdlr);
-   viscosity_dcoeffs_v(r,&res[params.nrhs],m,invdlr);
-    viscosity_d2coeffs_u(r,res,m,invdlr2);
-    viscosity_d2coeffs_v(r,&res[params.nrhs],m,invdlr2);
+   viscosity_dcoeffs_u(indx,r,res,m,invdlr);
+   viscosity_dcoeffs_v(indx,r,&res[params.nrhs],m,invdlr);
+    viscosity_d2coeffs_u(indx,r,res,m,invdlr2);
+    viscosity_d2coeffs_v(indx,r,&res[params.nrhs],m,invdlr2);
     return;
 }
 
 
-void lower_diag(double r, int m, double complex *res) {
-    double c2 = cs2(r);
+void lower_diag(int indx, double r, int m, double complex *res) {
+    double c2 = disk.c2[indx];
     double invdlr = -.5/params.dlr;
     double invdlr2 = 1./(params.dlr*params.dlr);
     double norm = (params.iso) ? 1.0 : c2;
@@ -56,10 +57,10 @@ void lower_diag(double r, int m, double complex *res) {
     res[2] = c2/(norm*r) * invdlr;
     res[6] = norm*invdlr / r;
 
-   viscosity_dcoeffs_u(r,res,m,invdlr);
-   viscosity_dcoeffs_v(r,&res[params.nrhs],m,invdlr);
-    viscosity_d2coeffs_u(r,res,m,invdlr2);
-    viscosity_d2coeffs_v(r,&res[params.nrhs],m,invdlr2);
+   viscosity_dcoeffs_u(indx,r,res,m,invdlr);
+   viscosity_dcoeffs_v(indx,r,&res[params.nrhs],m,invdlr);
+    viscosity_d2coeffs_u(indx,r,res,m,invdlr2);
+    viscosity_d2coeffs_v(indx,r,&res[params.nrhs],m,invdlr2);
 
 
     return;
@@ -100,12 +101,13 @@ void zero_outer_bc(double complex *mdn, double complex *ldn) {
 
 }
 
-void lw_inner_bc(double r0, int m, int eps, double complex *md0, double complex *ud0) {
-    main_diag(r0,m,md0);
-    lower_diag(r0,m,ud0);
-    
+void lw_inner_bc(int indx, double r0, int m, int eps, double complex *md0, double complex *ud0) {
+    main_diag(indx,r0,m,md0);
+    lower_diag(indx,r0,m,ud0);
+        
+    double c2 = disk.c2[indx];
     double rb = r0 * exp(-.5*params.dlr);
-    double kr = rb*pow( fabs(Dfunc(rb,params.omf,m)/cs2(rb)) ,.5);
+    double kr = rb*pow( fabs(Dfunc(indx,rb,params.omf,m)/c2) ,.5);
     
     double complex fac = (1 - .5*eps*I*kr*params.dlr)/(1 + .5*eps*I*kr*params.dlr);
 
@@ -114,15 +116,16 @@ void lw_inner_bc(double r0, int m, int eps, double complex *md0, double complex 
     for(i=0;i<9;i++) {
         md0[i] += fac*ud0[i];
     }
-    upper_diag(r0,m,ud0);
+    upper_diag(indx,r0,m,ud0);
     return;
 } 
-void lw_outer_bc(double rn, int m, int eps, double complex *mdn,  double complex *ldn) {
-    main_diag(rn,m,mdn);
-    upper_diag(rn,m,ldn);
+void lw_outer_bc(int indx, double rn, int m, int eps, double complex *mdn,  double complex *ldn) {
+    main_diag(indx,rn,m,mdn);
+    upper_diag(indx,rn,m,ldn);
     
+    double c2 = disk.c2[indx];
     double rb = rn * exp(.5*params.dlr);
-    double kr = rb*pow( fabs(Dfunc(rb,params.omf,m)/cs2(rb)) ,.5);
+    double kr = rb*pow( fabs(Dfunc(indx,rb,params.omf,m)/c2) ,.5);
     
     double complex fac = (1 + .5*eps*I*kr*params.dlr)/(1 - .5*eps*I*kr*params.dlr);
 
@@ -130,7 +133,7 @@ void lw_outer_bc(double rn, int m, int eps, double complex *mdn,  double complex
     for(i=0;i<9;i++) {
         mdn[i] += fac*ldn[i];
     }
-    lower_diag(rn,m,ldn);
+    lower_diag(indx,rn,m,ldn);
     return;
 } 
 
@@ -144,13 +147,14 @@ void construct_matrix(double *r, double complex *ld, double complex *md, double 
         fd[0] = 0; fd[1] = 0; fd[2] = 0;
     }
     else {
-        lw_inner_bc(r[0], m, 1, &md[0], &ud[0]);
-        add_force(r[0], m, &fd[0]);
+        lw_inner_bc(0,r[0], m, 1, &md[0], &ud[0]);
+        fd[0] = 0; fd[1] = 0; fd[2] = 0;
+        //add_force(r[0], m, &fd[0]);
     }
     for(i=1;i<n-1;i++) {
-        main_diag(r[i],m, &md[i*size]);
-        upper_diag(r[i],m, &ud[i*size]);
-        lower_diag(r[i],m, &ld[(i-1)*size]);
+        main_diag(i,r[i],m, &md[i*size]);
+        upper_diag(i,r[i],m, &ud[i*size]);
+        lower_diag(i,r[i],m, &ld[(i-1)*size]);
         fd[i*params.nrhs] = -drpot[i];
         fd[i*params.nrhs+1] = -dppot[i]*I*m/r[i];
         fd[i*params.nrhs+2] = 0;
@@ -163,7 +167,7 @@ void construct_matrix(double *r, double complex *ld, double complex *md, double 
         fd[i*params.nrhs] = 0; fd[i*params.nrhs+1] = 0; fd[i*params.nrhs+1] = 0;
     }
     else {
-        lw_outer_bc(r[i], m, 1, &md[i*size],  &ld[(i-1)*size]);
+        lw_outer_bc(i,r[i], m, 1, &md[i*size],  &ld[(i-1)*size]);
         add_force(r[i], m, &fd[i*params.nrhs]);
     }
     return;

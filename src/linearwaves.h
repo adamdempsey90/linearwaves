@@ -29,7 +29,7 @@ typedef struct Planet {
 typedef struct Grid {
     int n, nm;
     int *mvals;
-    double *r;
+    double *r, *lr;
 //    double complex *ld,*md,*ud,*fd;
     double *lamdep, *lamex, *fw, *drfw;
     double *TL, *TR;
@@ -39,39 +39,45 @@ typedef struct Grid {
 } Grid;
 
 typedef struct Disk {
+    double *c2;
     double *sigma;
     double *omega;
-    double *drsigma;
-    double *dr2sigma;
-    double *dromega;
+    double *dlsdlr;
+    double *d2lsdlr;
+    double *dlomdlr;
+    double *dlnudlr;
+    double *dlTdlr;
+    double *d2lTdlr;
     double *kappa2;
-
+    double *nu;
+    double *pres;
+    double *dpdr;
 } Disk;
 
 
 Planet planet;
 Params params;
-double *r;
+Disk disk;
 int np, rank;
 
 
 double scaleH(double x) ;
 double omegaK(double x) ;
-double nu(double x) ;
-double cs(double x) ;
-double cs2(double x) ;
-double omega2(double x) ;
-double kappa2(double x) ;
-double kappa(double x) ;
-double omega(double x) ;
-double k2om(double x);
-double sigma(double x) ;
-double pres(double x) ;
-double dsdr(double x) ;
-double dpdr(double x) ;
-double dc2dr(double x) ;
-double Dfunc(double x, double omp, int m) ;
-double complex sig(double x, double complex s);
+double nu_func(double x) ;
+double cs_func(double x) ;
+double cs2_func(double x) ;
+double omega2_func(double x) ;
+double kappa2_func(double x) ;
+double kappa_func(double x) ;
+double omega_func(double x) ;
+double k2om_func(double x);
+double sigma_func(double x) ;
+double pres_func(double x) ;
+double dsdr_func(double x) ;
+double dpdr_func(double x) ;
+double dc2dr_func(double x) ;
+double Dfunc(int indx, double x, double omp, int m) ;
+double complex sig(int i, double x, double complex s);
 
 void force(double x, int m, double complex *res);
 void construct_matrix(double *r, double complex *ld, double complex *md, double complex *ud, double complex *fd, double *dppot, double *drpot, int m);
@@ -85,14 +91,18 @@ void init_params(void);
 void init_planet(void);
 void output_matrix(double complex *ld, double complex *md, double complex *ud, double complex *fd);
 void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *dppot, double *TL, double *TR, int m) ;
-void viscosity_coeffs_u(double r, double complex *res, int m);
-void viscosity_dcoeffs_u(double r, double complex *res, int m, double invdlr);
-void viscosity_d2coeffs_u(double r, double complex *res, int m, double invdlr2);
-void viscosity_coeffs_v(double r, double complex *res, int m);
-void viscosity_dcoeffs_v(double r, double complex *res, int m, double invdlr);
-void viscosity_d2coeffs_v(double r, double complex *res, int m, double invdlr2);
+void viscosity_coeffs_u(int indx, double r, double complex *res, int m);
+void viscosity_dcoeffs_u(int indx, double r, double complex *res, int m, double invdlr);
+void viscosity_d2coeffs_u(int indx, double r, double complex *res, int m, double invdlr2);
+void viscosity_coeffs_v(int indx, double r, double complex *res, int m);
+void viscosity_dcoeffs_v(int indx, double r, double complex *res, int m, double invdlr);
+void viscosity_d2coeffs_v(int indx, double r, double complex *res, int m, double invdlr2);
 void init_grid(int num_modes, Grid *grid) ;
 void free_grid(Grid *grid) ;
 void linearwaves(int i, Grid *grid) ;
 void output_torques(char *fname, Grid *grid);
 void fft_potential(double *r, double *pot1, double *pot2, int num_modes);
+void read_sigma(char *fname, double *lr, double *sigma, double *dlsdlr, double *d2lsdlr, int n);
+void init_disk(char *fname, double *r);
+void free_disk(void);
+void output_disk(char *fname);

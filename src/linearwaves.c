@@ -34,7 +34,7 @@ void linearwaves(int i, Grid *grid) {
     for(i=0;i<grid->n;i++) {
         u[i] = fd[i*params.nrhs];
         v[i] = fd[i*params.nrhs+1];
-        s[i] = sig(r[i],fd[i*params.nrhs+2]);
+        s[i] = sig(i,r[i],fd[i*params.nrhs+2]);
     }
 
     calc_torques(r,fw,drfw,lamex,lamdep,fd,dppot,TL,TR,m);
@@ -50,6 +50,7 @@ void linearwaves(int i, Grid *grid) {
 void init_grid(int num_modes, Grid *grid) {
     grid->mvals = (int *)malloc(sizeof(int)*num_modes);
     grid->r = (double *)malloc(sizeof(double)*params.n);
+    grid->lr = (double *)malloc(sizeof(double)*params.n);
     grid->lamex = (double *)malloc(sizeof(double)*params.n*num_modes);
     grid->lamdep = (double *)malloc(sizeof(double)*params.n*num_modes);
     grid->fw= (double *)malloc(sizeof(double)*params.n*num_modes);

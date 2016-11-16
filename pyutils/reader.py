@@ -4,6 +4,7 @@ import copy
 
 class Disk():
     def __init__(self,fname='outputs/res.dat',p=0):
+        dfname = fname + '.disk'
         fname = fname +'.{:d}'.format(p)
         dat = np.fromfile(fname)
         self.n,self.nm,self.mi,self.mf = dat[:4].astype(int)
@@ -36,8 +37,13 @@ class Disk():
             self.v[:,indx] = dat[:,2] + 1j*dat[:,3]
             self.s[:,indx] = dat[:,4] + 1j*dat[:,5]
 
-
         self.dlr = np.diff(np.log(self.r))[0]
+
+        dat = np.fromfile(dfname)[1:]
+        self.dbar = dat[:self.n]
+        self.dlsdlr = dat[self.n:2*self.n]
+        self.d2lsdlr = dat[:self.n*2:3*self.n]
+
     def total_torque(self,logx=False,xlims=None,ax=None):
         if ax is None:
             fig = plt.figure()

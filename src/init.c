@@ -3,7 +3,7 @@
 void init_params(void) {
 
 
-    params.n = 8192;
+    params.n = 4096;
     params.nphi = 2000;
     params.nrhs =3;
     params.h = .05;
@@ -18,7 +18,7 @@ void init_params(void) {
     params.rmin = .003;
     params.rmax = 5;
     params.iso = TRUE;
-    params.pcorrect = TRUE;
+    params.pcorrect = FALSE;
     params.ieps = 0;
     params.zero_inner_bc = FALSE;
     params.zero_outer_bc = FALSE;

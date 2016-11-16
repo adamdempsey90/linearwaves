@@ -23,6 +23,7 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
     invdlr2 = invdlr*invdlr;
     *TL = 0;
     *TR = 0;
+    double dsdr,dbar;
     for(i=1;i<params.n-1;i++) {
         for (j=0;j<params.nrhs;j++) {
             mf[j] = 0;
@@ -35,19 +36,20 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
         v = sol[i*params.nrhs+1];
         dv = sol[(i+1)*params.nrhs+1] - sol[(i-1)*params.nrhs+1];
         du = sol[(i+1)*params.nrhs] - sol[(i-1)*params.nrhs];
-        s = sig(r[i],sol[i*params.nrhs+2]);
+        s = sig(i,r[i],sol[i*params.nrhs+2]);
 
 
+        om = disk.omega[i];
+        k2om = disk.kappa2[i]/(2*om);
+        dsdr = disk.sigma[i]/r[i] * disk.dlsdlr[i];
+        dbar = disk.sigma[i];
 
-        om = omega(r[i]);
-        k2om = kappa2(r[i])/(2*om);
-
-        viscosity_coeffs_v(r[i],mf,m);
-        viscosity_d2coeffs_v(r[i],mf,m,-2*invdlr2);
-        viscosity_dcoeffs_v(r[i],lf,m,-.5*invdlr);
-        viscosity_d2coeffs_v(r[i],lf,m,invdlr2);
-        viscosity_dcoeffs_v(r[i],uf,m,.5*invdlr);
-        viscosity_d2coeffs_v(r[i],uf,m,invdlr2);
+        viscosity_coeffs_v(i,r[i],mf,m);
+        viscosity_d2coeffs_v(i,r[i],mf,m,-2*invdlr2);
+        viscosity_dcoeffs_v(i,r[i],lf,m,-.5*invdlr);
+        viscosity_d2coeffs_v(i,r[i],lf,m,invdlr2);
+        viscosity_dcoeffs_v(i,r[i],uf,m,.5*invdlr);
+        viscosity_d2coeffs_v(i,r[i],uf,m,invdlr2);
 
         res = 0;
         for(j=0;j<params.nrhs;j++) {
@@ -56,11 +58,11 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
         res *= r[i];
         lamdep[i] += 2*creal(conj(s) * res);
         lamdep[i] += 2*creal(conj(s)*u)*r[i]*k2om;
-        lamdep[i] -= sigma(r[i])*2*creal(u*conj(dv*.5*invdlr + v));
+        lamdep[i] -= dbar*2*creal(u*conj(dv*.5*invdlr + v));
         lamdep[i] += params.ieps*2*creal(u*conj(s))*r[i];
 
-        fw[i] = r[i]*r[i]*sigma(r[i])*2*creal(u * conj(v));
-        drfw[i] = (2*sigma(r[i]) + r[i]*dsdr(r[i]))*2*creal(u*conj(v)) + .5*invdlr*sigma(r[i])*2*creal(du*conj(v)+u*conj(dv));
+        fw[i] = r[i]*r[i]*dbar*2*creal(u * conj(v));
+        drfw[i] = (2*dbar + r[i]*dsdr)*2*creal(u*conj(v)) + .5*invdlr*dbar*2*creal(du*conj(v)+u*conj(dv));
         for(j=0;j<params.nrhs;j++) mf[j] = 0;
         lamex[i] = -2*m*creal(cimag(s)*dppot[i]);
         //lamex[i] = r[i]*2*creal(conj(s)*-dppot[i]*I*m/r[i]);

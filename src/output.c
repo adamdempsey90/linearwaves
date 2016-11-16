@@ -1,6 +1,27 @@
 #include "linearwaves.h"
 
 
+void output_disk(char *fname) {
+    FILE *f = fopen(fname,"w");
+    double temp;
+    temp = (int)params.n;
+    fwrite(&temp,sizeof(double),1,f);
+    fwrite(disk.sigma, sizeof(double),params.n,f);
+    fwrite(disk.dlsdlr, sizeof(double),params.n,f);
+    fwrite(disk.d2lsdlr, sizeof(double),params.n,f);
+    fwrite(disk.c2, sizeof(double),params.n,f);
+    fwrite(disk.omega, sizeof(double),params.n,f);
+    fwrite(disk.dlomdlr, sizeof(double),params.n,f);
+    fwrite(disk.dlnudlr, sizeof(double),params.n,f);
+    fwrite(disk.dlTdlr, sizeof(double),params.n,f);
+    fwrite(disk.d2lTdlr, sizeof(double),params.n,f);
+    fwrite(disk.kappa2, sizeof(double),params.n,f);
+    fwrite(disk.nu, sizeof(double),params.n,f);
+    fwrite(disk.pres, sizeof(double),params.n,f);
+    fwrite(disk.dpdr, sizeof(double),params.n,f);
+
+    fclose(f);
+}
 
 void output(double *r, double complex *sol, double *lamex, double *lamdep, double *drfw, double *fw, char *fname) {
  
