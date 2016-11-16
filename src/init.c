@@ -3,20 +3,20 @@
 void init_params(void) {
 
 
-    params.n = 4096;
+    params.n = 32000;
     params.nphi = 2000;
     params.nrhs =3;
     params.h = .05;
     params.mu = -.5;
-    params.delta = -1;
-    params.nuindx = 0;
+    params.delta = 0;
+    params.nuindx = 0.5;
     params.eta = 0;
     params.alpha = 0.001;
     params.omf = 1;
     params.f = 0;
     params.sig0 = 1;
-    params.rmin = .003;
-    params.rmax = 5;
+    params.rmin = .01;
+    params.rmax = 30;
     params.iso = TRUE;
     params.pcorrect = FALSE;
     params.ieps = 0;

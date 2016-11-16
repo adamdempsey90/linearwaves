@@ -55,7 +55,7 @@ class Disk():
             ax.set_xscale('log')
         ax.legend(loc='upper right')
         ax.set_xlabel('m',fontsize=15)
-    def torque(self,m,logx=True,xlims=None,ax=None,integ=False):
+    def torque(self,m,logx=True,xlims=None,ax=None,integ=False,from_inner=False,**kargs):
         if ax is None:
             fig = plt.figure()
             ax = fig.add_subplot(111)
@@ -66,22 +66,37 @@ class Disk():
         lamdep = self.lamdep[:,i].copy()
         if integ:
             fw  = 2*np.pi*(self.fw[:,i])
-            ind = self.r >= 1
-            ilamex = np.zeros(lamex.shape)
-            ilamex[ind] = (lamex*2*np.pi*self.r*self.r*self.dlr)[ind].cumsum()
-            ilamdep= np.zeros(lamdep.shape)
-            ilamdep[ind] = (lamdep*2*np.pi*self.r*self.r*self.dlr)[ind].cumsum()
-            ind = self.r <= 1
-            ilamex[ind] = -(lamex*2*np.pi*self.r*self.r*self.dlr)[ind][::-1].cumsum()[::-1]
-            ilamdep[ind] = -(lamdep*2*np.pi*self.r*self.r*self.dlr)[ind][::-1].cumsum()[::-1]
-            lamdep = ilamdep
-            lamex = ilamex
+            if from_inner:
+                lamex = 2*np.pi*(lamex*self.r**2*self.dlr).cumsum()
+                lamdep = 2*np.pi*(lamdep*self.r**2*self.dlr).cumsum()
+            else:
+                #fr = self.fw[:,i][self.r>=1][0]
+                #fl = self.fw[:,i][self.r<=1][-1]
+                #rr = self.r[self.r>=1][0]
+                #rl = self.r[self.r<=1][-1]
+                #fp = fl + (fr-fl)/(np.log(rr/rl)) *(np.log(1./rl))
+                #fw -= 2*np.pi*fp
+
+                ind = self.r >= 1
+                ilamex = np.zeros(lamex.shape)
+                ilamex[ind] = (lamex*2*np.pi*self.r*self.r*self.dlr)[ind].cumsum()
+                ilamex[ind] -= ilamex[ind][0]
+                ilamdep= np.zeros(lamdep.shape)
+                ilamdep[ind] = (lamdep*2*np.pi*self.r*self.r*self.dlr)[ind].cumsum()
+                ilamdep[ind] -= ilamdep[ind][0]
+                ind = self.r <= 1
+                ilamex[ind] = -(lamex*2*np.pi*self.r*self.r*self.dlr)[ind][::-1].cumsum()[::-1]
+                ilamdep[ind] = -(lamdep*2*np.pi*self.r*self.r*self.dlr)[ind][::-1].cumsum()[::-1]
+                ilamex[ind] -= ilamex[ind][-1]
+                ilamdep[ind] -= ilamdep[ind][-1]
+                lamdep = ilamdep
+                lamex = ilamex
         else:
             fw = self.drfw[:,i].copy()
 
-        ax.plot(self.r,lamex,'-k')
-        ax.plot(self.r,fw,'-r')
-        ax.plot(self.r,lamdep,'-b')
+        ax.plot(self.r,lamex,c='k',**kargs)
+        ax.plot(self.r,fw,c='r',**kargs)
+        ax.plot(self.r,lamdep,c='b',**kargs)
         if logx:
             ax.set_xscale('log')
         if xlims is not None:
