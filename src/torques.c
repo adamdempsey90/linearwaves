@@ -84,3 +84,16 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
     return;
 
 }
+/*
+void calc_linear_torques(double *r, double *sol, double *dppot, double *TL, double *TR, int m) {
+    int i;
+    double sval, lamex;
+    for(i=0;i<params.n;i++) {
+        sval = cimag(sig(i,r[i],sol[i*params.nrhs+2]));
+        lamex = -2*m*creal(sval*dppot[i]);
+        if (r[i] >= planet.a) *TR += lamex*2*M_PI*r[i]*r[i]*params.dlr;
+        if (r[i] <= planet.a) *TL -= lamex*2*M_PI*r[i]*r[i]*params.dlr;
+    }
+    return;
+}
+*/

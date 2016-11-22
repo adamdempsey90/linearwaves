@@ -49,8 +49,9 @@ class Disk():
             fig = plt.figure()
             ax = fig.add_subplot(111)
         mvals = 1 + np.arange(len(self.TR))
-        ax.plot(mvals,self.TR,'ok',label='Outer')
-        ax.plot(mvals,self.TL,'sr',label='Inner')
+        norm = 1./.05**2
+        ax.plot(mvals,self.TR/norm,'ok',label='Outer')
+        ax.plot(mvals,self.TL/norm,'sr',label='Inner')
         if logx:
             ax.set_xscale('log')
         ax.legend(loc='upper right')

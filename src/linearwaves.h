@@ -52,6 +52,7 @@ typedef struct Disk {
     double *nu;
     double *pres;
     double *dpdr;
+    double *lambda;
 } Disk;
 
 
