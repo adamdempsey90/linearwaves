@@ -1,5 +1,5 @@
 # Grid Parameters
-n = 32000
+n = 4096
 nphi = 2000
 rmin = .05
 rmax = 10
@@ -11,12 +11,12 @@ mend = 100
 
 # Disk Properties
 h = 0.05
-mu = 0
-delta = 0
+mu = -0.5
+delta = -1.0
 f = 0
-nuindx = 0.0
+nuindx = 0.5
 eta = 0
-alpha = 0.001
+alpha = 0.01
 omf = 1.0
 sig0 = 1.0
 
@@ -36,8 +36,8 @@ zero_inner_bc = No
 zero_outer_bc = No
 
 # Read background from file
-fromfile = No
-diskfile = profiles/avg_profs/prof_q1e-3_a1e-3.bin
+fromfile = No 
+diskfile = profiles/avg_profs/prof_q1e-3_a1e-2.bin
 
 # Output file
 outputname = outputs/res.dat

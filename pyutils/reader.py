@@ -102,12 +102,18 @@ class Disk():
             ax.set_xscale('log')
         if xlims is not None:
             ax.set_xlim(xlims)
-    def plot(self,m,logx=True):
-        fig,axes = plt.subplots(1,3,figsize=(15,5))
-        i = m-1
-        axes[0].plot(self.r,self.u.real[:,i],self.r,self.u.imag[:,i])
-        axes[1].plot(self.r,self.v.real[:,i],self.r,self.v.imag[:,i])
-        axes[2].plot(self.r,self.s.real[:,i],self.r,self.s.imag[:,i])
+    def plot(self,m,logx=True,axes=None,fig=None):
+        if axes is None:
+            fig,axes = plt.subplots(1,3,figsize=(15,5))
+        if m == 0:
+            axes[0].plot(self.r,self.dbar,'-k')
+            axes[1].plot(self.r,self.dlsdlr,'-k')
+            axes[2].plot(self.r,self.d2lsdlr,'-k')
+        else:
+            i = m-1
+            axes[0].plot(self.r,self.u.real[:,i],self.r,self.u.imag[:,i])
+            axes[1].plot(self.r,self.v.real[:,i],self.r,self.v.imag[:,i])
+            axes[2].plot(self.r,self.s.real[:,i],self.r,self.s.imag[:,i])
 
         if logx:
             for ax in axes:

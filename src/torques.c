@@ -79,7 +79,7 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
     fw[params.n-1] = 0;
     drfw[params.n-1] = 0;
     lamex[params.n-1] = 0;
-    if (m<=20)  printf("%d\t%lg\t%lg\n",m,*TL,*TR);
+    printf("%d\t%lg\t%lg\n",m,*TL,*TR);
 
     return;
 
