@@ -31,6 +31,7 @@ int main(int argc, char *argv[]) {
     int mend = params.mend;
     params.nm = mend-mstart+1;
     int num_modes = params.nm/np;
+    printf("%lg\t%lg\n",params.rmin,params.rmax);
 
     Grid *grid = (Grid *)malloc(sizeof(Grid));
     init_grid(num_modes, grid);

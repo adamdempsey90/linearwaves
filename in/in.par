@@ -1,5 +1,5 @@
 # Grid Parameters
-n = 8192
+n = 32000
 nphi = 2000
 rmin = .05
 rmax = 10

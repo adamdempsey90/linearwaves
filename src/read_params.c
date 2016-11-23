@@ -92,7 +92,7 @@ void set_var(char *name,int int_val, double double_val, int bool_val, char *str_
 
     }
     else if (strcmp(name,"eps") == 0) {	
-        params.rmin = double_val;
+        params.eps = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
