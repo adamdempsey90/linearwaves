@@ -25,6 +25,7 @@ void read_sigma(char *fname, double *lr, double *sigma, double *dlsdlr, double *
     int ndata;
     double *xd,*yd;
     int i;
+
     FILE *f = fopen(fname,"r");
     fread(&temp,sizeof(double),1,f);
     ndata=(int)temp;

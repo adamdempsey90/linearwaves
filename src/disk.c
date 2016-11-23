@@ -39,8 +39,9 @@ void free_disk(void ){
 
 void init_disk(char *fname, double *lr) {
     alloc_disk();
-
-    read_sigma(fname, lr, disk.sigma,disk.dlsdlr,disk.d2lsdlr,params.n);
+    if (params.fromfile) {
+        read_sigma(fname, lr, disk.sigma,disk.dlsdlr,disk.d2lsdlr,params.n);
+    }
     int i;
     double x,om2,k2; 
     for(i=0;i<params.n;i++) {
@@ -50,8 +51,16 @@ void init_disk(char *fname, double *lr) {
         disk.dlnudlr[i] = params.nuindx;
         disk.dlTdlr[i] = params.delta;
         disk.d2lTdlr[i] = 0;
+        if (params.fromfile) {
         disk.sigma[i] = exp(disk.sigma[i]);
         disk.d2lsdlr[i] = (disk.d2lsdlr[i]<0) ? fmax(disk.d2lsdlr[i],-1./(params.h*params.h)) : fmin(disk.d2lsdlr[i],1./(params.h*params.h));
+
+        }
+        else {
+            disk.sigma[i] = sigma_func(x);
+            disk.dlsdlr[i] = params.mu;
+            disk.d2lsdlr[i] = 0;
+        }
         if (!params.pcorrect) {
             disk.omega[i] = omegaK(x);
             disk.kappa2[i] = disk.omega[i]*disk.omega[i];

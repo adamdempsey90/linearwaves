@@ -5,11 +5,24 @@
 int main(int argc, char *argv[]) {
     MPI_Init(&argc,&argv);
     MPI_Comm_size(MPI_COMM_WORLD,&np);
-    MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-    init_planet();
-    init_params();
-    int mstart = atoi(argv[1]);
-    int mend = atoi(argv[2]);
+    MPI_Comm_rank(MPI_COMM_WORLD,&rank);    
+    char parfile[256];
+    if (argc < 2) {
+        strcpy(parfile,"in/in.par");
+    }
+    else {
+        strcpy(parfile,argv[1]);
+    }
+    printf("Reading parameters from %s...\n",parfile);
+    if (argc > 2) {
+        read_param_file(parfile,argc-2,&argv[2]);
+    }
+    else {
+        read_param_file(parfile,0,NULL);
+    }
+    printf("Read file\n");
+    int mstart = params.mstart;
+    int mend = params.mend;
     params.nm = mend-mstart+1;
     int num_modes = params.nm/np;
 
@@ -22,7 +35,7 @@ int main(int argc, char *argv[]) {
         grid->lr[i] = log(params.rmin) + params.dlr*i;
         grid->r[i] = exp(grid->lr[i]);
     }
-    init_disk(argv[3],grid->lr);
+    init_disk(params.diskfile,grid->lr);
 
     grid->n = params.n;
     grid->nm = num_modes;
@@ -31,7 +44,7 @@ int main(int argc, char *argv[]) {
     }
     double *dp_pot_full = (double *)malloc(sizeof(double)*params.n*(params.nm));
     double *dr_pot_full = (double *)malloc(sizeof(double)*params.n*(params.nm));
-/* Do FFT of potentail on root */
+/* Do FFT of potential on root */
     if (rank == 0) {
         fft_potential(grid->r,dp_pot_full,dr_pot_full,params.nm);
     }
@@ -45,10 +58,10 @@ int main(int argc, char *argv[]) {
     }
 
     char fname[256];
-    sprintf(fname,"%s.%d",argv[4],rank);
+    sprintf(fname,"%s.%d",params.outputname,rank);
     output_torques(fname,grid);
     if (rank == 0) {
-        sprintf(fname,"%s.disk",argv[4]);
+        sprintf(fname,"%s.disk",params.outputname);
         output_disk(fname);
     }
 

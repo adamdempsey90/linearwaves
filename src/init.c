@@ -3,9 +3,12 @@
 void init_params(void) {
 
 
+    // Ints
     params.n = 8192;
     params.nphi = 2000;
     params.nrhs =3;
+
+    // doubles
     params.h = .05;
     params.mu = -.5;
     params.delta = -1;
@@ -17,13 +20,15 @@ void init_params(void) {
     params.sig0 = 1;
     params.rmin = .05;
     params.rmax = 30;
+    params.ieps = 0;
+
+    //Bools
     params.iso = TRUE;
     params.pcorrect = FALSE;
-    params.ieps = 0;
     params.zero_inner_bc = FALSE;
     params.zero_outer_bc = FALSE;
-    params.tol = 1e-5;
     params.simple_visc = FALSE;
+    params.fromfile = FALSE;
 
 
     planet.mp = 1;

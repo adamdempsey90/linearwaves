@@ -1,30 +1,20 @@
 #include "linearwaves.h"
 #include <fftw3.h>
 
-void init_planet(void) {
-
-    planet.mp = 1;
-    planet.eps = .6*.05;
-    planet.eps2 = planet.eps*planet.eps;
-    planet.a = 1;
-    planet.indirect = TRUE;
-    return;
-
-}
 
 double potential(double phi, double x) {
-    double res = -pow(x*x + planet.a*planet.a + planet.eps2 - 2*planet.a*x*cos(phi),-.5);
+    double res = -pow(x*x + 1 + planet.eps2 - 2*x*cos(phi),-.5);
     if (planet.indirect) {
-        res += cos(phi)*planet.a/(x*x);
+        res += cos(phi)*1./(x*x);
     }
     return res;
 }
 
 double dr_potential(double phi, double x) {
-    double res = ( x - planet.a*cos(phi)) * pow(x*x + planet.a*planet.a + planet.eps2 - 2*planet.a*x*cos(phi),-1.5);
+    double res = ( x - cos(phi)) * pow(x*x + 1 + planet.eps2 - 2*x*cos(phi),-1.5);
 
     if (planet.indirect) {
-        res -= 2* cos(phi)*planet.a/(x*x*x);
+        res -= 2* cos(phi)*1./(x*x*x);
     }
     return res;
 }

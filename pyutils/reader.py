@@ -42,7 +42,7 @@ class Disk():
         dat = np.fromfile(dfname)[1:]
         self.dbar = dat[:self.n]
         self.dlsdlr = dat[self.n:2*self.n]
-        self.d2lsdlr = dat[:self.n*2:3*self.n]
+        self.d2lsdlr = dat[self.n*2:3*self.n]
 
     def total_torque(self,logx=False,xlims=None,ax=None):
         if ax is None:

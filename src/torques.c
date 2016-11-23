@@ -44,7 +44,7 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
         dsdr = disk.sigma[i]/r[i] * disk.dlsdlr[i];
         dbar = disk.sigma[i];
 
-        viscosity_coeffs_v(i,r[i],mf,m);
+        viscosity_coeffs_v(i,r[i],mf,m,1.0);
         viscosity_d2coeffs_v(i,r[i],mf,m,-2*invdlr2);
         viscosity_dcoeffs_v(i,r[i],lf,m,-.5*invdlr);
         viscosity_d2coeffs_v(i,r[i],lf,m,invdlr2);

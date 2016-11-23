@@ -10,12 +10,18 @@
 typedef struct Params {
     
     int n,nrhs,nm,nphi;
+    int mstart,mend;
 
     double h, mu, delta, nuindx, eta, alpha,omf,f,sig0;
     double dlr,rmin,rmax,tol;
     double ieps;
     int iso,pcorrect,zero_inner_bc, zero_outer_bc;
     int simple_visc;
+    int indirect;
+    int fromfile;
+    char outputname[512];
+    char diskfile[512];
+    double eps;
 
 
 }    Params;
@@ -92,10 +98,10 @@ void init_params(void);
 void init_planet(void);
 void output_matrix(double complex *ld, double complex *md, double complex *ud, double complex *fd);
 void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *dppot, double *TL, double *TR, int m) ;
-void viscosity_coeffs_u(int indx, double r, double complex *res, int m);
+void viscosity_coeffs_u(int indx, double r, double complex *res, int m, double fac);
 void viscosity_dcoeffs_u(int indx, double r, double complex *res, int m, double invdlr);
 void viscosity_d2coeffs_u(int indx, double r, double complex *res, int m, double invdlr2);
-void viscosity_coeffs_v(int indx, double r, double complex *res, int m);
+void viscosity_coeffs_v(int indx, double r, double complex *res, int m, double fac);
 void viscosity_dcoeffs_v(int indx, double r, double complex *res, int m, double invdlr);
 void viscosity_d2coeffs_v(int indx, double r, double complex *res, int m, double invdlr2);
 void init_grid(int num_modes, Grid *grid) ;
@@ -107,3 +113,4 @@ void read_sigma(char *fname, double *lr, double *sigma, double *dlsdlr, double *
 void init_disk(char *fname, double *r);
 void free_disk(void);
 void output_disk(char *fname);
+void read_param_file(char *fname, int argc, char *argv[]);
