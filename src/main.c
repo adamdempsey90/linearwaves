@@ -1,11 +1,17 @@
 #include "linearwaves.h"
+#ifdef _MPI
 #include <mpi.h>
-
+#endif
 
 int main(int argc, char *argv[]) {
+#ifdef _MPI
     MPI_Init(&argc,&argv);
     MPI_Comm_size(MPI_COMM_WORLD,&np);
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);    
+#else
+    np = 1;
+    rank = 0;
+#endif
     char parfile[256];
     if (argc < 2) {
         strcpy(parfile,"in/in.par");
@@ -48,9 +54,14 @@ int main(int argc, char *argv[]) {
     if (rank == 0) {
         fft_potential(grid->r,dp_pot_full,dr_pot_full,params.nm);
     }
+#ifdef _MPI
     MPI_Scatter(dp_pot_full,grid->n*num_modes,MPI_DOUBLE,grid->dppot,grid->n*num_modes,MPI_DOUBLE,0, MPI_COMM_WORLD);
 
     MPI_Scatter(dr_pot_full,grid->n*num_modes,MPI_DOUBLE,grid->drpot,grid->n*num_modes,MPI_DOUBLE,0, MPI_COMM_WORLD);
+#else
+    memcpy(grid->dppot,dp_pot_full,sizeof(double)*grid->n*num_modes);
+    memcpy(grid->drpot,dr_pot_full,sizeof(double)*grid->n*num_modes);
+#endif
     free(dp_pot_full);
     free(dr_pot_full);
     for(i=0;i<num_modes;i++) {
@@ -63,13 +74,21 @@ int main(int argc, char *argv[]) {
     if (rank == 0) {
         sprintf(fname,"%s.disk",params.outputname);
         output_disk(fname);
+        printf("Finished\n");
     }
-
+    /*
+    printf("free grid\n");
     free_grid(grid);
+    printf("free grid\n");
     free(grid);
+    printf("free grid\n");
     free_disk();
-
+    printf("free grid\n");
+*/
+#ifdef _MPI
     int mpi_status  =  MPI_Finalize();
-
+#else
+    int mpi_status = 0;
+#endif
     return mpi_status;
 }  

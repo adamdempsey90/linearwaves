@@ -30,8 +30,8 @@ void viscosity_coeffs_v(int indx, double r, double complex *res, int m, double f
     double eta = params.eta;
     double om = disk.omega[indx];
     double gamma = disk.dlnudlr[indx] + disk.dlsdlr[indx];
-    double c2 = disk.c2[indx];
-    double norm = (params.iso) ? 1.0 : c2;
+    //double c2 = disk.c2[indx];
+    //double norm = (params.iso) ? 1.0 : c2;
     double drom = disk.kappa2[indx]/(2*om) - 2*om;
     double invr = 1./r;
     double invr2 = invr*invr;
@@ -53,11 +53,11 @@ void viscosity_coeffs_v(int indx, double r, double complex *res, int m, double f
 void viscosity_dcoeffs_u(int indx, double r, double complex *res, int m, double fac) {
     double visc = -disk.nu[indx];
     double eta = params.eta;
-    double om = disk.omega[indx];
+    //double om = disk.omega[indx];
     double gamma = disk.dlnudlr[indx] + disk.dlsdlr[indx];
-    double c2 = disk.c2[indx];
-    double norm = (params.iso) ? 1.0 : c2;
-    double drom = disk.kappa2[indx]/(2*om) - 2*om;
+    //double c2 = disk.c2[indx];
+    //double norm = (params.iso) ? 1.0 : c2;
+    //double drom = disk.kappa2[indx]/(2*om) - 2*om;
 
     double invr = 1./r;
     double invr2 = invr*invr;
@@ -89,7 +89,7 @@ void viscosity_dcoeffs_v(int indx, double r, double complex *res, int m, double 
 
     return;
 }
-void viscosity_d2coeffs_u(int indx, double r, double complex *res,int m, double fac) {
+void viscosity_d2coeffs_u(int indx, double r, double complex *res, double fac) {
     
     double visc = -disk.nu[indx];
     double eta = params.eta;
@@ -103,10 +103,10 @@ void viscosity_d2coeffs_u(int indx, double r, double complex *res,int m, double 
     }
     return;
 }
-void viscosity_d2coeffs_v(int indx, double r, double complex *res,int m, double fac) {
+void viscosity_d2coeffs_v(int indx, double r, double complex *res, double fac) {
     
     double visc = -disk.nu[indx];
-    double eta = params.eta;
+    //double eta = params.eta;
     double invr2 = 1./(r*r);
 
     if (params.simple_visc) {

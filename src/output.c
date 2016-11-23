@@ -82,50 +82,14 @@ void output_torques(char *fname, Grid *grid) {
     fwrite(&mend,sizeof(double),1,f);
     fwrite(grid->TL,sizeof(double),grid->nm,f);
     fwrite(grid->TR,sizeof(double),grid->nm,f);
-    //fwrite((double *)grid->mvals,sizeof(double),grid->nm,f);
     fwrite(grid->r,sizeof(double),params.n,f);
     fwrite(grid->lamex,sizeof(double),params.n*grid->nm,f);
     fwrite(grid->lamdep,sizeof(double),params.n*grid->nm,f);
     fwrite(grid->drfw,sizeof(double),params.n*grid->nm,f);
     fwrite(grid->fw,sizeof(double),params.n*grid->nm,f);
     fwrite(grid->dppot,sizeof(double),params.n*grid->nm,f);
-    double rval;
-    double ival;
-    int j,i;
-    /*
-    for(j=0;j<grid->nm;j++) {
-        for(i=0;i<grid->n;i++) {
-            rval = creal(grid->u[i + j*grid->n]);
-            fwrite(&rval,sizeof(double),1,f);
-        }
-        for(i=0;i<grid->n;i++) {
-            ival = cimag(grid->u[i + j*grid->n]);
-            fwrite(&ival,sizeof(double),1,f);
-        }
-    }
-    for(j=0;j<grid->nm;j++) {
-        for(i=0;i<grid->n;i++) {
-            rval = creal(grid->v[i + j*grid->n]);
-            fwrite(&rval,sizeof(double),1,f);
-        }
-        for(i=0;i<grid->n;i++) {
-            ival = cimag(grid->v[i + j*grid->n]);
-            fwrite(&ival,sizeof(double),1,f);
-        }
-    }
-    for(j=0;j<grid->nm;j++) {
-        for(i=0;i<grid->n;i++) {
-            rval = creal(grid->s[i + j*grid->n]);
-            fwrite(&rval,sizeof(double),1,f);
-        }
-        for(i=0;i<grid->n;i++) {
-            ival = cimag(grid->s[i + j*grid->n]);
-            fwrite(&ival,sizeof(double),1,f);
-        }
-    }
-    */
-    fclose(f);
 
+    fclose(f);
 
 
 }
@@ -144,11 +108,31 @@ void output_matrix(double complex *ld, double complex *md, double complex *ud, d
             fwrite(&ipart,sizeof(double),1,f);
         }
     }
+    for(i=0;i<params.n-1;i++) {
+        for(j=0;j<9;j++) {
+            rpart = creal(ld[i*9 + j]);
+            ipart = cimag(ld[i*9 + j]);
+            fwrite(&rpart,sizeof(double),1,f);
+            fwrite(&ipart,sizeof(double),1,f);
+        }
+    }
+    for(i=0;i<params.n-1;i++) {
+        for(j=0;j<9;j++) {
+            rpart = creal(ud[i*9 + j]);
+            ipart = cimag(ud[i*9 + j]);
+            fwrite(&rpart,sizeof(double),1,f);
+            fwrite(&ipart,sizeof(double),1,f);
+        }
+    }
+    for(i=0;i<params.n;i++) {
+        for(j=0;j<3;j++) {
+            rpart = creal(fd[i*3 + j]);
+            ipart = cimag(fd[i*3 + j]);
+            fwrite(&rpart,sizeof(double),1,f);
+            fwrite(&ipart,sizeof(double),1,f);
+        }
+    }
 
-    //fwrite((double *)ld,sizeof(double),(params.n-1)*params.nrhs*params.nrhs*2,f);
-    //fwrite((double *)ud,sizeof(double),(params.n-1)*params.nrhs*params.nrhs*2,f);
-    //fwrite((double *)md,sizeof(double),params.n*params.nrhs*params.nrhs*2,f);
-    //fwrite((double *)fd,sizeof(double),params.n*params.nrhs*2,f);
     fclose(f);
     return;
 }

@@ -173,10 +173,10 @@ double dpdr_func(double x) {
 double dc2dr_func(double x) {
     return params.delta * cs2_func(x)/x;
 }
-double Dfunc(int i, double x, double omp, int m) {
+double Dfunc(int i, double omp, int m) {
     return disk.kappa2[i] - m*m*(disk.omega[i] - omp)*(disk.omega[i]-omp);
 }
-double complex sig(int i, double x, double complex s) {
+double complex sig(int i, double complex s) {
     if (params.iso) {
         return s*disk.sigma[i];
 

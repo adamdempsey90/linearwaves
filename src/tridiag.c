@@ -1,5 +1,9 @@
 #include "linearwaves.h"
 
+
+extern void dgemm_(char *, char *, int *, int *,int *, double *, double *, int *, double *, int *, double *, double *, int *);
+extern void dgemv_(char *, int *, int *, double *, double *, int *, double *,int *,double *,double *,int*);
+extern void dgesv_(int *, int *, double *, int *, int *, double *, int *, int *);
 void matmat(double  *A, double *B, double *C,
 					double alpha, double beta, int nA)
 {

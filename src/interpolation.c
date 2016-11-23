@@ -2,6 +2,9 @@
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_spline.h>
 
+
+#define FREAD_CHECK(i,j) ((i) >= (j)) ? (void) 0 : printf("fread returned read fewer items than expected (%zu < %zu) at line %d in %s of %s\n",i,j,__LINE__,__func__,__FILE__)
+
 void interpolation(double *xd, double *yd, int nd, double *x, double *y, double *dy, double *d2y, int n) {
     gsl_interp_accel *acc = gsl_interp_accel_alloc ();
     gsl_spline *spline = gsl_spline_alloc (gsl_interp_cspline, nd);
@@ -22,19 +25,24 @@ void interpolation(double *xd, double *yd, int nd, double *x, double *y, double 
 
 void read_sigma(char *fname, double *lr, double *sigma, double *dlsdlr, double *d2lsdlr, int n) {
     double temp;
-    int ndata;
+    size_t ndata;
     double *xd,*yd;
     int i;
+    size_t fres;
 
     FILE *f = fopen(fname,"r");
-    fread(&temp,sizeof(double),1,f);
-    ndata=(int)temp;
+    ndata = 1;
+    fres = fread(&temp,sizeof(double),ndata,f);
+    FREAD_CHECK(fres,ndata);
+    ndata=(size_t)temp;
 
     xd = (double *)malloc(sizeof(double)*ndata);
     yd = (double *)malloc(sizeof(double)*ndata);
 
-    fread(xd,sizeof(double),ndata,f);
-    fread(yd,sizeof(double),ndata,f);
+    fres = fread(xd,sizeof(double),ndata,f);
+    FREAD_CHECK(fres,ndata);
+    fres =  fread(yd,sizeof(double),ndata,f);
+    FREAD_CHECK(fres,ndata);
     fclose(f);
 
 

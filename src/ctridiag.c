@@ -1,5 +1,9 @@
 #include "linearwaves.h"
 
+extern void zgemm_(char *, char *, int *, int *,int *, double complex *, double complex *, int *, double complex *, int *, double complex *, double complex *, int *);
+extern void zgemv_(char *, int *, int *, double complex *, double complex *, int *, double complex *,int *,double complex *,double complex *,int*);
+extern void zgesv_(int *, int *, double complex *, int *, int *, double complex *, int *, int *);
+
 void cmatmat(double complex  *A, double complex *B, double complex *C,
 					double complex alpha, double complex beta, int nA)
 {
@@ -100,36 +104,36 @@ void csolve(double complex *A, double complex *B,int nA, int nRHS) {
     int LDB = nA;
     int INFO;
 
-    double complex *AT = (double complex *)malloc(sizeof(double complex)*nA*nA);
-    double complex *BT = (double complex *)malloc(sizeof(double complex)*nA*nRHS);
+    double complex *AT = (double complex *)malloc(sizeof(double complex)*N*N);
+    double complex *BT = (double complex *)malloc(sizeof(double complex)*N*nRHS);
     int i,j;
-    for(i=0;i<nA;i++) {
-        for(j=0;j<nA;j++) {
-            AT[i + nA*j] = A[j + nA*i];
+    for(i=0;i<N;i++) {
+        for(j=0;j<N;j++) {
+            AT[i + N*j] = A[j + N*i];
         }
     }
     if (nRHS > 1) {
-        for(i=0;i<nA;i++) {
-            for(j=0;j<nA;j++) {
-                BT[i + nA*j] = B[j + nA*i];
+        for(i=0;i<N;i++) {
+            for(j=0;j<N;j++) {
+                BT[i + N*j] = B[j + N*i];
             }
         }
     }
     else {
-        for(i=0;i<nA;i++) BT[i] = B[i];
+        for(i=0;i<N;i++) BT[i] = B[i];
     }
 
-    zgesv_(&nA, &NRHS, AT, &LDA, IPIV, BT, &LDB, &INFO);
+    zgesv_(&N, &NRHS, AT, &LDA, IPIV, BT, &LDB, &INFO);
 
     if (nRHS > 1) {
-        for(i=0;i<nA;i++) {
-            for(j=0;j<nA;j++) {
-                B[i + nA*j] = BT[j + nA*i];
+        for(i=0;i<N;i++) {
+            for(j=0;j<N;j++) {
+                B[i + N*j] = BT[j + N*i];
             }
         }
     }
     else {
-        for(i=0;i<nA;i++) B[i] = BT[i];
+        for(i=0;i<N;i++) B[i] = BT[i];
     }
     free(AT);
     free(BT);

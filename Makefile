@@ -10,7 +10,9 @@ FFTWLIB=-lfftw3
 
 LDFLAGS= $(MATHLIB) $(LAPACKLIB) $(FFTWLIB) $(GSLLIB)
 
-CFLAGS=-c -Wall -O3 
+CFLAGS=-c -O3 -g -Wall -Wextra 
+
+PEXECUTABLE=$(EXECUTABLE)
 
 INCLIB=
 LDLIB=
@@ -24,6 +26,9 @@ UNAME := $(shell echo $(USER))
 
 
 CC=gcc
+MPICC=mpicc
+
+
 #INCLIB=-I/usr/local/include/
 #LDLIB=-L/usr/local/lib/
 INCLIB=
@@ -33,7 +38,6 @@ ifeq ($(UNAME),jupiter)
 CC=gcc-6
 endif
 
-CC=mpicc
 #!!!!!DO NOT EDIT ANYTHING UNDER THIS LINE!!!!!
 OBJECTS=$(SOURCES:.c=.o)
 CSOURCES=$(addprefix $(SRC),$(SOURCES))
@@ -41,9 +45,16 @@ COBJECTS=$(addprefix $(BIN),$(OBJECTS))
 CHEADER=$(addprefix $(SRC),$(HEADER))
 
 
+para: CFLAGS += -D_MPI
+para: CC=$(MPICC)
+para: $(CSOURCES) $(PEXECUTABLE)
 
+nopara: $(CSOURCES) $(EXECUTABLE)
 
 all: $(CSOURCES) $(EXECUTABLE)
+
+$(PEXECUTABLE): $(COBJECTS)
+	$(MPICC)  $(COBJECTS) $(LDLIB) $(LDFLAGS) -o $@
 
 $(EXECUTABLE): $(COBJECTS)
 	$(CC)  $(COBJECTS) $(LDLIB) $(LDFLAGS) -o $@
