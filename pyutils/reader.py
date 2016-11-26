@@ -44,6 +44,14 @@ class Disk():
         self.dlsdlr = dat[self.n:2*self.n]
         self.d2lsdlr = dat[self.n*2:3*self.n]
 
+        self.lamex_tot = self.lamex[:,1:].sum(axis=1)
+        self.lamdep_tot = self.lamdep[:,1:].sum(axis=1)
+        self.drfw_tot = self.drfw[:,1:].sum(axis=1)
+        self.fw_tot = self.fw[:,1:].sum(axis=1)
+        self.pot_tot = self.pot[:,1:].sum(axis=1)
+        self.drfd = self.drfw[:,0].copy()
+        self.mdot_d = self.fw[:,0].copy()
+
     def total_torque(self,logx=False,xlims=None,ax=None):
         if ax is None:
             fig = plt.figure()
@@ -56,17 +64,25 @@ class Disk():
             ax.set_xscale('log')
         ax.legend(loc='upper right')
         ax.set_xlabel('m',fontsize=15)
-    def torque(self,m,logx=True,xlims=None,ax=None,integ=False,from_inner=False,**kargs):
+    def torque(self,m,logx=True,xlims=None,ax=None,integ=False,from_inner=False,tot=False,**kargs):
         if ax is None:
             fig = plt.figure()
             ax = fig.add_subplot(111)
 
         i = m-1
 
-        lamex = self.lamex[:,i].copy()
-        lamdep = self.lamdep[:,i].copy()
+        if tot:
+            lamex = self.lamex_tot.copy()
+            lamdep = self.lamdep_tot.copy()
+        else:
+            lamex = self.lamex[:,i].copy()
+            lamdep = self.lamdep[:,i].copy()
         if integ:
-            fw  = 2*np.pi*(self.fw[:,i])
+            if tot:
+                fw  = 2*np.pi*(self.fw_tot)
+            else:
+                fw  = 2*np.pi*(self.fw[:,i])
+
             if from_inner:
                 lamex = 2*np.pi*(lamex*self.r**2*self.dlr).cumsum()
                 lamdep = 2*np.pi*(lamdep*self.r**2*self.dlr).cumsum()
@@ -93,7 +109,10 @@ class Disk():
                 lamdep = ilamdep
                 lamex = ilamex
         else:
-            fw = self.drfw[:,i].copy()
+            if tot:
+                fw = self.drfw_tot.copy()
+            else:
+                fw = self.drfw[:,i].copy()
 
         ax.plot(self.r,lamex,c='k',**kargs)
         ax.plot(self.r,fw,c='r',**kargs)
@@ -102,6 +121,7 @@ class Disk():
             ax.set_xscale('log')
         if xlims is not None:
             ax.set_xlim(xlims)
+            return lamex,lamdep,fw
     def plot(self,m,logx=True,axes=None,fig=None):
         if axes is None:
             fig,axes = plt.subplots(1,3,figsize=(15,5))

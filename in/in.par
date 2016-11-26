@@ -16,7 +16,7 @@ delta = -1.0
 f = 0
 nuindx = 0.5
 eta = 0
-alpha = 0.01
+alpha = 0.001
 omf = 1.0
 sig0 = 1.0
 
@@ -32,12 +32,12 @@ eps = 0.05
 indirect = No
 
 # Boundary Conditions
-zero_inner_bc = No
+zero_inner_bc = Yes
 zero_outer_bc = No
 
 # Read background from file
-fromfile = No 
-diskfile = profiles/avg_profs/prof_q1e-3_a1e-2.bin
+fromfile = Yes
+diskfile = profiles/zt_ex.bin
 
 # Output file
 outputname = outputs/res.dat
