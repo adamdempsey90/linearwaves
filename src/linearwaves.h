@@ -7,6 +7,8 @@
 #define TRUE 1
 #define FALSE 0
 
+#define SAFE_FREE(ptr) free(ptr); ptr = NULL;
+
 typedef struct Params {
     
     int n,nrhs,nm,nphi;
@@ -104,7 +106,7 @@ void viscosity_d2coeffs_u(int indx, double r, double complex *res, double fac);
 void viscosity_coeffs_v(int indx, double r, double complex *res, int m, double fac);
 void viscosity_dcoeffs_v(int indx, double r, double complex *res, int m, double fac);
 void viscosity_d2coeffs_v(int indx, double r, double complex *res, double fac);
-void init_grid(int num_modes, Grid *grid) ;
+void init_grid(int mstar,int mend, Grid *grid) ;
 void free_grid(Grid *grid) ;
 void linearwaves(int i, Grid *grid) ;
 void output_torques(char *fname, Grid *grid);

@@ -63,7 +63,7 @@ void fft_potential(double *r, double *pot1, double *pot2, int num_modes) {
         }
     }
     fftw_destroy_plan(pr2r);
-    free(in);
+    SAFE_FREE(in);
     return;
 }
 

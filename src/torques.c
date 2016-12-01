@@ -1,6 +1,7 @@
 #include "linearwaves.h"
 
 
+
 void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *dppot, double *TL, double *TR,int m) {
     double complex lf[3], uf[3], mf[3];
     double invdlr, invdlr2;

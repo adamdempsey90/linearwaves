@@ -40,7 +40,7 @@ void matmat(double  *A, double *B, double *C,
 	for(i=0;i<nA;i++) {
 		for(j=0;j<nA;j++)	C[i + nA*j] = work[i+nA*j];
 	}
-    free(work);
+    SAFE_FREE(work);
 	return;
 
 }
@@ -135,8 +135,8 @@ void solve(double *A, double *B,int nA, int nRHS) {
     else {
         for(i=0;i<nA;i++) B[i] = BT[i];
     }
-    free(AT);
-    free(BT);
+    SAFE_FREE(AT);
+    SAFE_FREE(BT);
     return;
 }
 

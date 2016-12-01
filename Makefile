@@ -1,4 +1,5 @@
 EXECUTABLE=linearwaves
+LIBRARY=linearwaves.so
 SOURCES=coeffs.c disk.c main.c output.c ctridiag.c fft.c read_params.c torques.c viscosity.c linearwaves.c interpolation.c
 HEADER=linearwaves.h
 

@@ -21,19 +21,19 @@ void alloc_disk(void ){
 void free_disk(void ){
 
     
-    free(disk.c2);
-    free(disk.sigma);
-    free(disk.omega);
-    free(disk.dlsdlr);
-    free(disk.d2lsdlr);
-    free(disk.dlomdlr);
-    free(disk.dlnudlr);
-    free(disk.dlTdlr);
-    free(disk.d2lTdlr);
-    free(disk.kappa2);
-    free(disk.nu);
-    free(disk.pres);
-    free(disk.dpdr);
+    SAFE_FREE(disk.c2);
+    SAFE_FREE(disk.sigma);
+    SAFE_FREE(disk.omega);
+    SAFE_FREE(disk.dlsdlr);
+    SAFE_FREE(disk.d2lsdlr);
+    SAFE_FREE(disk.dlomdlr);
+    SAFE_FREE(disk.dlnudlr);
+    SAFE_FREE(disk.dlTdlr);
+    SAFE_FREE(disk.d2lTdlr);
+    SAFE_FREE(disk.kappa2);
+    SAFE_FREE(disk.nu);
+    SAFE_FREE(disk.pres);
+    SAFE_FREE(disk.dpdr);
     return;
 }
 

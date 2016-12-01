@@ -57,10 +57,10 @@ else {
 //	normalize_evectors(evecs);
 
 
-	free(tA); free(tQ);
-	free(RWORK); free(CWORK);
-	free(evals_alpha);
-	free(evals_beta);
+	SAFE_FREE(tA); SAFE_FREE(tQ);
+	SAFE_FREE(RWORK); SAFE_FREE(CWORK);
+	SAFE_FREE(evals_alpha);
+	SAFE_FREE(evals_beta);
  	return;
 }
 
@@ -216,7 +216,7 @@ void solve(double *A, double *B,int nA) {
     }
 
     dgesv_(&nA, &NRHS, AT, &LDA, IPIV, B, &LDB, &INFO);
-    free(AT);
+    SAFE_FREE(AT);
     return;
 }
 void csolve(double complex *A, double complex *B,int nA) {
@@ -237,7 +237,7 @@ void csolve(double complex *A, double complex *B,int nA) {
     }
 
     zgesv_(&nA, &NRHS, AT, &LDA, IPIV, B, &LDB, &INFO);
-    free(AT);
+    SAFE_FREE(AT);
     return;
 }
 

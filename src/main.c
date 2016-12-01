@@ -34,37 +34,8 @@ int main(int argc, char *argv[]) {
     printf("%lg\t%lg\n",params.rmin,params.rmax);
 
     Grid *grid = (Grid *)malloc(sizeof(Grid));
-    init_grid(num_modes, grid);
-    grid->n = params.n;
-    params.dlr = log(params.rmax/params.rmin) / (double)params.n;
+    init_grid(mstart,mend, grid);
     int i;
-    for(i=0;i<params.n;i++) {
-        grid->lr[i] = log(params.rmin) + params.dlr*i;
-        grid->r[i] = exp(grid->lr[i]);
-    }
-    init_disk(params.diskfile,grid->lr);
-
-    grid->n = params.n;
-    grid->nm = num_modes;
-    for(i=0;i<num_modes;i++) {
-        grid->mvals[i] = rank*num_modes + mstart + i;
-    }
-    double *dp_pot_full = (double *)malloc(sizeof(double)*params.n*(params.nm));
-    double *dr_pot_full = (double *)malloc(sizeof(double)*params.n*(params.nm));
-/* Do FFT of potential on root */
-    if (rank == 0) {
-        fft_potential(grid->r,dp_pot_full,dr_pot_full,params.nm);
-    }
-#ifdef _MPI
-    MPI_Scatter(dp_pot_full,grid->n*num_modes,MPI_DOUBLE,grid->dppot,grid->n*num_modes,MPI_DOUBLE,0, MPI_COMM_WORLD);
-
-    MPI_Scatter(dr_pot_full,grid->n*num_modes,MPI_DOUBLE,grid->drpot,grid->n*num_modes,MPI_DOUBLE,0, MPI_COMM_WORLD);
-#else
-    memcpy(grid->dppot,dp_pot_full,sizeof(double)*grid->n*num_modes);
-    memcpy(grid->drpot,dr_pot_full,sizeof(double)*grid->n*num_modes);
-#endif
-    free(dp_pot_full);
-    free(dr_pot_full);
     for(i=0;i<num_modes;i++) {
         linearwaves(i, grid);
     }
@@ -81,7 +52,7 @@ int main(int argc, char *argv[]) {
     printf("free grid\n");
     free_grid(grid);
     printf("free grid\n");
-    free(grid);
+    SAFE_FREE(grid);
     printf("free grid\n");
     free_disk();
     printf("free grid\n");

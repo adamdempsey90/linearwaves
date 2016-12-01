@@ -55,7 +55,7 @@ int run_one(int m, char *fname) {
     for(i=0;i<3;i++) printf("%s\t%.3e s\n",timer_names[i],timers[i]);
 
 
-    free(r); free(md); free(fd); free(ud); free(ld);
-    free(fw); free(lamex);
+    SAFE_FREE(r); SAFE_FREE(md); SAFE_FREE(fd); SAFE_FREE(ud); SAFE_FREE(ld);
+    SAFE_FREE(fw); SAFE_FREE(lamex);
     return 1;
 }

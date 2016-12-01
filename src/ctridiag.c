@@ -40,7 +40,7 @@ void cmatmat(double complex  *A, double complex *B, double complex *C,
 	for(i=0;i<nA;i++) {
 		for(j=0;j<nA;j++)	C[i + nA*j] = work[i+nA*j];
 	}
-    free(work);
+    SAFE_FREE(work);
 	return;
 
 }
@@ -135,8 +135,8 @@ void csolve(double complex *A, double complex *B,int nA, int nRHS) {
     else {
         for(i=0;i<N;i++) B[i] = BT[i];
     }
-    free(AT);
-    free(BT);
+    SAFE_FREE(AT);
+    SAFE_FREE(BT);
     return;
 }
 

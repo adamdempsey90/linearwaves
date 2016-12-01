@@ -80,8 +80,8 @@ void read_sigma(char *fname, double *lr, double *sigma, double *dlsdlr, double *
         dlsdlr[i] = dlsdlr[jend];
         d2lsdlr[i] = 0;
     }
-    free(xd);
-    free(yd);
+    SAFE_FREE(xd);
+    SAFE_FREE(yd);
     return;
 }
 /*
@@ -114,9 +114,9 @@ int main(void) {
     fwrite(y,sizeof(double),n,f);
     fwrite(dy,sizeof(double),n,f);
     fwrite(d2y,sizeof(double),n,f);
-    free(x);
-    free(y);
-    free(dy);
-    free(d2y);
+    SAFE_FREE(x);
+    SAFE_FREE(y);
+    SAFE_FREE(dy);
+    SAFE_FREE(d2y);
 }
 */
