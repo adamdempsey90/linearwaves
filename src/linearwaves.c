@@ -1,6 +1,6 @@
 #include "linearwaves.h"
 
-void excited_torques(Grid *grid, double *TL, double *TR, double *sol, int m) {
+void excited_torques(Grid *grid, double *TL, double *TR, double *sol, int m, Params params, Planet planet) {
 
     double lamex;
     int i;
@@ -17,7 +17,7 @@ void excited_torques(Grid *grid, double *TL, double *TR, double *sol, int m) {
     }
     return;
 }
-void linearwaves(int i, Grid *grid) {
+void linearwaves(int i, Grid *grid, Params params, Planet planet, Disk disk) {
     
     int m = grid->mvals[i];
     double *r = grid->r;
@@ -39,13 +39,13 @@ void linearwaves(int i, Grid *grid) {
     double *drpot = &grid->drpot[(i)*grid->n];
     FILE *f;
     int j;
-    if (m==10) {
-        f = fopen("potential.dat","w");
-        for(j=0;j<params.n;j++) fprintf(f,"%lg\n",dppot[j]);
-        fclose(f);
-    }
+   // if (m==10) {
+   //     f = fopen("potential.dat","w");
+   //     for(j=0;j<params.n;j++) fprintf(f,"%lg\n",dppot[j]);
+   //     fclose(f);
+   // }
     //printf("Working on m=%d\n",m);
-    construct_matrix(r,ld,md,ud,fd,dppot,drpot,m);
+    construct_matrix(r,ld,md,ud,fd,dppot,drpot,m,params,planet,disk);
     cthomas_alg_block(ld,md,ud,fd,params.n,params.nrhs);
 
     for(i=0;i<grid->n;i++) {
@@ -54,7 +54,7 @@ void linearwaves(int i, Grid *grid) {
         s[i] = sig(i,fd[i*params.nrhs+2]);
     }
 
-    calc_torques(r,fw,drfw,lamex,lamdep,fd,dppot,TL,TR,m);
+    calc_torques(r,fw,drfw,lamex,lamdep,fd,dppot,TL,TR,m,params,planet,disk);
     
     SAFE_FREE(md);
     SAFE_FREE(fd);
@@ -64,10 +64,8 @@ void linearwaves(int i, Grid *grid) {
 }
 
 
-void init_grid(int mstart, int mend, Grid *grid) {
+void init_grid(int mstart, int mend, Grid *grid, Params params) {
     int num_modes = (mend-mstart+1)/np;
-    
-    
 
     grid->mvals = (int *)malloc(sizeof(int)*num_modes);
     grid->r = (double *)malloc(sizeof(double)*params.n);
@@ -90,7 +88,7 @@ void init_grid(int mstart, int mend, Grid *grid) {
         grid->lr[i] = log(params.rmin) + params.dlr*i;
         grid->r[i] = exp(grid->lr[i]);
     }
-    init_disk(params.diskfile,grid->lr);
+    init_disk(params.diskfile,grid->lr,params,disk);
 
     grid->n = params.n;
     grid->nm = num_modes;

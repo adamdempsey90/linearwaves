@@ -63,30 +63,26 @@ typedef struct Disk {
     double *lambda;
 } Disk;
 
-
-Planet planet;
-Params params;
-Disk disk;
 int np, rank;
 
 
-double scaleH(double x) ;
-double omegaK(double x) ;
-double nu_func(double x) ;
-double cs_func(double x) ;
-double cs2_func(double x) ;
-double omega2_func(double x) ;
-double kappa2_func(double x) ;
-double kappa_func(double x) ;
-double omega_func(double x) ;
-double k2om_func(double x);
-double sigma_func(double x) ;
-double pres_func(double x) ;
-double dsdr_func(double x) ;
-double dpdr_func(double x) ;
-double dc2dr_func(double x) ;
-double Dfunc(int indx, double omp, int m) ;
-double complex sig(int i, double complex s);
+double scaleH(double x, Params params, Disk disk) ;
+double omegaK(double x, Params params, Disk disk) ;
+double nu_func(double x, Params params, Disk disk) ;
+double cs_func(double x, Params params, Disk disk) ;
+double cs2_func(double x, Params params, Disk disk) ;
+double omega2_func(double x, Params params, Disk disk) ;
+double kappa2_func(double x, Params params, Disk disk) ;
+double kappa_func(double x, Params params, Disk disk) ;
+double omega_func(double x, Params params, Disk disk) ;
+double k2om_func(double x, Params params, Disk disk);
+double sigma_func(double x, Params params, Disk disk) ;
+double pres_func(double x, Params params, Disk disk) ;
+double dsdr_func(double x, Params params, Disk disk) ;
+double dpdr_func(double x, Params params, Disk disk) ;
+double dc2dr_func(double x, Params params, Disk disk) ;
+double Dfunc(int indx, double omp, int m, Params params, Disk disk) ;
+double complex sig(int i, double complex s, Params params, Disk disk);
 
 void force(double x, int m, double complex *res);
 void construct_matrix(double *r, double complex *ld, double complex *md, double complex *ud, double complex *fd, double *dppot, double *drpot, int m);
@@ -115,4 +111,4 @@ void read_sigma(char *fname, double *lr, double *sigma, double *dlsdlr, double *
 void init_disk(char *fname, double *r);
 void free_disk(void);
 void output_disk(char *fname);
-void read_param_file(char *fname, int argc, char *argv[]);
+void read_param_file(char *fname, Params params, int argc, char *argv[]);
