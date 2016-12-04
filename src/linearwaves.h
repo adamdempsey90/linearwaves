@@ -85,7 +85,7 @@ double Dfunc(int indx, double omp, int m, Params params, Disk disk) ;
 double complex sig(int i, double complex s, Params params, Disk disk);
 
 void force(double x, int m, double complex *res);
-void construct_matrix(double *r, double complex *ld, double complex *md, double complex *ud, double complex *fd, double *dppot, double *drpot, int m);
+void construct_matrix(double *r, double complex *ld, double complex *md, double complex *ud, double complex *fd, double *dppot, double *drpot, int m,Params params, Disk disk);
 
 
 

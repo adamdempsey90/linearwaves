@@ -1,7 +1,7 @@
 #include "linearwaves.h"
 
 
-void main_diag(int indx, double r, int m, double complex *res) {
+void main_diag(int indx, double r, int m, double complex *res, Params params, Disk disk) {
     double om = disk.omega[indx];
     double c2 = disk.c2[indx];
     double mu = disk.dlsdlr[indx];
@@ -29,7 +29,7 @@ void main_diag(int indx, double r, int m, double complex *res) {
     return;
 }
 
-void upper_diag(int indx, double r, int m, double complex *res) {
+void upper_diag(int indx, double r, int m, double complex *res, Params params, Disk disk) {
 
    double c2 = disk.c2[indx];
    double invdlr = .5/params.dlr;
@@ -49,7 +49,7 @@ void upper_diag(int indx, double r, int m, double complex *res) {
 }
 
 
-void lower_diag(int indx, double r, int m, double complex *res) {
+void lower_diag(int indx, double r, int m, double complex *res, Params params, Disk disk) {
     double c2 = disk.c2[indx];
     double invdlr = -.5/params.dlr;
     double invdlr2 = 1./(params.dlr*params.dlr);
@@ -97,13 +97,13 @@ void zero_outer_bc(double complex *mdn, double complex *ldn) {
 
 }
 
-void lw_inner_bc(int indx, double r0, int m, int eps, double complex *md0, double complex *ud0) {
-    main_diag(indx,r0,m,md0);
-    lower_diag(indx,r0,m,ud0);
+void lw_inner_bc(int indx, double r0, int m, int eps, double complex *md0, double complex *ud0, Params params, Disk disk) {
+    main_diag(indx,r0,m,md0,params,disk);
+    lower_diag(indx,r0,m,ud0,params,disk);
         
     double c2 = disk.c2[indx];
     double rb = r0 * exp(-.5*params.dlr);
-    double kr = rb*pow( fabs(Dfunc(indx,params.omf,m)/c2) ,.5);
+    double kr = rb*pow( fabs(Dfunc(indx,params.omf,m,params,disk)/c2) ,.5);
     
     double complex fac = (1 - .5*eps*I*kr*params.dlr)/(1 + .5*eps*I*kr*params.dlr);
 
@@ -112,16 +112,16 @@ void lw_inner_bc(int indx, double r0, int m, int eps, double complex *md0, doubl
     for(i=0;i<9;i++) {
         md0[i] += fac*ud0[i];
     }
-    upper_diag(indx,r0,m,ud0);
+    upper_diag(indx,r0,m,ud0,params,disk);
     return;
 } 
-void lw_outer_bc(int indx, double rn, int m, int eps, double complex *mdn,  double complex *ldn) {
-    main_diag(indx,rn,m,mdn);
-    upper_diag(indx,rn,m,ldn);
+void lw_outer_bc(int indx, double rn, int m, int eps, double complex *mdn,  double complex *ldn, Params params, Disk disk) {
+    main_diag(indx,rn,m,mdn,params,disk);
+    upper_diag(indx,rn,m,ldn,params,disk);
     
     double c2 = disk.c2[indx];
     double rb = rn * exp(.5*params.dlr);
-    double kr = rb*pow( fabs(Dfunc(indx,params.omf,m)/c2) ,.5);
+    double kr = rb*pow( fabs(Dfunc(indx,params.omf,m,params,disk)/c2) ,.5);
     
     double complex fac = (1 + .5*eps*I*kr*params.dlr)/(1 - .5*eps*I*kr*params.dlr);
 
@@ -129,11 +129,11 @@ void lw_outer_bc(int indx, double rn, int m, int eps, double complex *mdn,  doub
     for(i=0;i<9;i++) {
         mdn[i] += fac*ldn[i];
     }
-    lower_diag(indx,rn,m,ldn);
+    lower_diag(indx,rn,m,ldn,params,disk);
     return;
 } 
 
-void construct_matrix(double *r, double complex *ld, double complex *md, double complex *ud, double complex *fd, double *dppot, double *drpot, int m) {
+void construct_matrix(double *r, double complex *ld, double complex *md, double complex *ud, double complex *fd, double *dppot, double *drpot, int m, Params params, Disk disk) {
     int i;
     int size = params.nrhs*params.nrhs;
     int n = params.n;
@@ -143,13 +143,13 @@ void construct_matrix(double *r, double complex *ld, double complex *md, double 
         fd[0] = 0; fd[1] = 0; fd[2] = 0;
     }
     else {
-        lw_inner_bc(0,r[0], m, 1, &md[0], &ud[0]);
+        lw_inner_bc(0,r[0], m, 1, &md[0], &ud[0],params,disk);
         fd[0] = 0; fd[1] = 0; fd[2] = 0;
     }
     for(i=1;i<n-1;i++) {
-        main_diag(i,r[i],m, &md[i*size]);
-        upper_diag(i,r[i],m, &ud[i*size]);
-        lower_diag(i,r[i],m, &ld[(i-1)*size]);
+        main_diag(i,r[i],m, &md[i*size],params,disk);
+        upper_diag(i,r[i],m, &ud[i*size],params,disk);
+        lower_diag(i,r[i],m, &ld[(i-1)*size],params,disk);
         fd[i*params.nrhs] = -drpot[i]; 
         fd[i*params.nrhs+1] = -dppot[i]*I*m/r[i];
         fd[i*params.nrhs+2] = 0;
@@ -161,7 +161,7 @@ void construct_matrix(double *r, double complex *ld, double complex *md, double 
         fd[i*params.nrhs] = 0; fd[i*params.nrhs+1] = 0; fd[i*params.nrhs+1] = 0;
     }
     else {
-        lw_outer_bc(i,r[i], m, 1, &md[i*size],  &ld[(i-1)*size]);
+        lw_outer_bc(i,r[i], m, 1, &md[i*size],  &ld[(i-1)*size],params,disk);
         fd[i*params.nrhs] = 0; fd[i*params.nrhs+1] = 0; fd[i*params.nrhs+1] = 0;
     }
     return;

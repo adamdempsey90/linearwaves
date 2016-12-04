@@ -1,43 +1,43 @@
 #include "linearwaves.h"
 
-void alloc_disk(void ){
+void alloc_disk(Disk *disk,Params *params){
 
-    disk.c2 = (double *)malloc(sizeof(double)*params.n);
-    disk.sigma = (double *)malloc(sizeof(double)*params.n);
-    disk.omega = (double *)malloc(sizeof(double)*params.n);
-    disk.dlsdlr = (double *)malloc(sizeof(double)*params.n);
-    disk.d2lsdlr = (double *)malloc(sizeof(double)*params.n);
-    disk.dlomdlr = (double *)malloc(sizeof(double)*params.n);
-    disk.dlnudlr = (double *)malloc(sizeof(double)*params.n);
-    disk.dlTdlr = (double *)malloc(sizeof(double)*params.n);
-    disk.d2lTdlr = (double *)malloc(sizeof(double)*params.n);
-    disk.kappa2 = (double *)malloc(sizeof(double)*params.n);
-    disk.nu = (double *)malloc(sizeof(double)*params.n);
-    disk.pres = (double *)malloc(sizeof(double)*params.n);
-    disk.dpdr = (double *)malloc(sizeof(double)*params.n);
+    disk->c2 = (double *)malloc(sizeof(double)*params->n);
+    disk->sigma = (double *)malloc(sizeof(double)*params->n);
+    disk->omega = (double *)malloc(sizeof(double)*params->n);
+    disk->dlsdlr = (double *)malloc(sizeof(double)*params->n);
+    disk->d2lsdlr = (double *)malloc(sizeof(double)*params->n);
+    disk->dlomdlr = (double *)malloc(sizeof(double)*params->n);
+    disk->dlnudlr = (double *)malloc(sizeof(double)*params->n);
+    disk->dlTdlr = (double *)malloc(sizeof(double)*params->n);
+    disk->d2lTdlr = (double *)malloc(sizeof(double)*params->n);
+    disk->kappa2 = (double *)malloc(sizeof(double)*params->n);
+    disk->nu = (double *)malloc(sizeof(double)*params->n);
+    disk->pres = (double *)malloc(sizeof(double)*params->n);
+    disk->dpdr = (double *)malloc(sizeof(double)*params->n);
     return;
 
 }
-void free_disk(void ){
+void free_disk(Disk *disk ){
 
     
-    SAFE_FREE(disk.c2);
-    SAFE_FREE(disk.sigma);
-    SAFE_FREE(disk.omega);
-    SAFE_FREE(disk.dlsdlr);
-    SAFE_FREE(disk.d2lsdlr);
-    SAFE_FREE(disk.dlomdlr);
-    SAFE_FREE(disk.dlnudlr);
-    SAFE_FREE(disk.dlTdlr);
-    SAFE_FREE(disk.d2lTdlr);
-    SAFE_FREE(disk.kappa2);
-    SAFE_FREE(disk.nu);
-    SAFE_FREE(disk.pres);
-    SAFE_FREE(disk.dpdr);
+    SAFE_FREE(disk->c2);
+    SAFE_FREE(disk->sigma);
+    SAFE_FREE(disk->omega);
+    SAFE_FREE(disk->dlsdlr);
+    SAFE_FREE(disk->d2lsdlr);
+    SAFE_FREE(disk->dlomdlr);
+    SAFE_FREE(disk->dlnudlr);
+    SAFE_FREE(disk->dlTdlr);
+    SAFE_FREE(disk->d2lTdlr);
+    SAFE_FREE(disk->kappa2);
+    SAFE_FREE(disk->nu);
+    SAFE_FREE(disk->pres);
+    SAFE_FREE(disk->dpdr);
     return;
 }
 
-void init_disk(char *fname, double *lr) {
+void init_disk(char *fname, double *lr,Disk disk,Params params) {
     alloc_disk();
     if (params.fromfile) {
         read_sigma(fname, lr, disk.sigma,disk.dlsdlr,disk.d2lsdlr,params.n);
