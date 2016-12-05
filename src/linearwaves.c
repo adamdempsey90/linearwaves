@@ -1,6 +1,6 @@
 #include "linearwaves.h"
 
-void excited_torques(Grid *grid, double *TL, double *TR, double *sol, int m, Params params, Planet planet) {
+void excited_torques(Grid *grid, double *TL, double *TR, int m, Params params, Planet planet, Disk *disk) {
 
     double lamex;
     int i;
@@ -9,7 +9,7 @@ void excited_torques(Grid *grid, double *TL, double *TR, double *sol, int m, Par
     for(i=0;i<params.n;i++) {
         r = grid->r[i];
         rfac = r*r* 2*M_PI*params.dlr;
-        s = sig(i,sol[i*params.nrhs+2]);
+        s = sig(i,grid->s[i],params,disk);
         dp = grid->dppot[i];    
         lamex = -2*m*creal(cimag(s)*dp);
         if (r >= planet.a) *TR += lamex * rfac;
@@ -17,7 +17,7 @@ void excited_torques(Grid *grid, double *TL, double *TR, double *sol, int m, Par
     }
     return;
 }
-void linearwaves(int i, Grid *grid, Params params, Planet planet, Disk disk) {
+void linearwaves(int i, Grid *grid, Params params, Planet planet, Disk *disk) {
     
     int m = grid->mvals[i];
     double *r = grid->r;
@@ -39,19 +39,29 @@ void linearwaves(int i, Grid *grid, Params params, Planet planet, Disk disk) {
     double *drpot = &grid->drpot[(i)*grid->n];
     FILE *f;
     int j;
-   // if (m==10) {
-   //     f = fopen("potential.dat","w");
-   //     for(j=0;j<params.n;j++) fprintf(f,"%lg\n",dppot[j]);
-   //     fclose(f);
-   // }
-    //printf("Working on m=%d\n",m);
-    construct_matrix(r,ld,md,ud,fd,dppot,drpot,m,params,planet,disk);
+   //if (m==2) {
+   //    f = fopen("potential.dat","w");
+   //    for(j=0;j<params.n;j++) fprintf(f,"%lg\n",dppot[j]);
+   //    fclose(f);
+   //}
+   //printf("Working on m=%d\n",m);
+    construct_matrix(r,ld,md,ud,fd,dppot,drpot,m,params,disk);
+    if (m==2) {
+    f = fopen("matrix.dat","w");
+    for (j=0;j<params.n;j++) {
+        fprintf(f,"%lg\t%lg\t%lg\t%lg\t%lg\t%lg\t%lg\n",r[j],
+                creal(md[3*j]),cimag(md[3*j]),
+                creal(md[3*j + 1]),cimag(md[3*j + 1]),
+                creal(md[3*j + 2]),cimag(md[3*j + 2]));
+    }
+    fclose(f);
+    }
     cthomas_alg_block(ld,md,ud,fd,params.n,params.nrhs);
 
     for(i=0;i<grid->n;i++) {
         u[i] = fd[i*params.nrhs];
         v[i] = fd[i*params.nrhs+1];
-        s[i] = sig(i,fd[i*params.nrhs+2]);
+        s[i] = sig(i,fd[i*params.nrhs+2],params,disk);
     }
 
     calc_torques(r,fw,drfw,lamex,lamdep,fd,dppot,TL,TR,m,params,planet,disk);
@@ -64,7 +74,7 @@ void linearwaves(int i, Grid *grid, Params params, Planet planet, Disk disk) {
 }
 
 
-void init_grid(int mstart, int mend, Grid *grid, Params params) {
+void init_grid(int mstart, int mend, Grid *grid, Params params, Planet planet, Disk *disk) {
     int num_modes = (mend-mstart+1)/np;
 
     grid->mvals = (int *)malloc(sizeof(int)*num_modes);
@@ -82,13 +92,12 @@ void init_grid(int mstart, int mend, Grid *grid, Params params) {
     grid->dppot = (double *)malloc(sizeof(double)*num_modes*params.n);
     grid->drpot = (double *)malloc(sizeof(double)*num_modes*params.n);
     grid->n = params.n;
-    params.dlr = log(params.rmax/params.rmin) / (double)params.n;
     int i;
     for(i=0;i<params.n;i++) {
         grid->lr[i] = log(params.rmin) + params.dlr*i;
         grid->r[i] = exp(grid->lr[i]);
     }
-    init_disk(params.diskfile,grid->lr,params,disk);
+    init_disk(params.diskfile,grid->lr,disk,params);
 
     grid->n = params.n;
     grid->nm = num_modes;
@@ -99,7 +108,7 @@ void init_grid(int mstart, int mend, Grid *grid, Params params) {
     double *dr_pot_full = (double *)malloc(sizeof(double)*params.n*(params.nm));
 /* Do FFT of potential on root */
     if (rank == 0) {
-        fft_potential(grid->r,dp_pot_full,dr_pot_full,params.nm);
+        fft_potential(grid->r,dp_pot_full,dr_pot_full,params.nm,params.nphi,params.n,planet);
     }
 #ifdef _MPI
     MPI_Scatter(dp_pot_full,grid->n*num_modes,MPI_DOUBLE,grid->dppot,grid->n*num_modes,MPI_DOUBLE,0, MPI_COMM_WORLD);
@@ -108,6 +117,7 @@ void init_grid(int mstart, int mend, Grid *grid, Params params) {
 #else
     memcpy(grid->dppot,dp_pot_full,sizeof(double)*grid->n*num_modes);
     memcpy(grid->drpot,dr_pot_full,sizeof(double)*grid->n*num_modes);
+
 #endif
     SAFE_FREE(dp_pot_full);
     SAFE_FREE(dr_pot_full);
@@ -146,14 +156,14 @@ void free_grid(Grid *grid) {
 }
 
 
-void get_excited_torques(int mstart, int mend, double *TL, double *TR) {
+void get_excited_torques(int mstart, int mend, double *TL, double *TR, Params params, Planet planet, Disk *disk) {
     Grid *grid = (Grid *)malloc(sizeof(Grid));
-    init_grid(mstart,mend, grid);
+    init_grid(mstart,mend, grid,params,planet,disk);
     int i;
     int num_modes = mend-mstart+1;
     for(i=0;i<num_modes;i++) {
-        linearwaves(i, grid);
-        excited_torques(grid,TL,TR,grid->mvals[i]);
+        linearwaves(i, grid,params,planet,disk);
+        excited_torques(grid,TL,TR,grid->mvals[i],params,planet,disk);
     }
 
     free_grid(grid);

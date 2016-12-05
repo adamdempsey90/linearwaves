@@ -1,11 +1,11 @@
 #include "linearwaves.h"
 
 
-void main_diag(int indx, double r, int m, double complex *res, Params params, Disk disk) {
-    double om = disk.omega[indx];
-    double c2 = disk.c2[indx];
-    double mu = disk.dlsdlr[indx];
-    double k2om = disk.kappa2[indx]/(2*om);
+void main_diag(int indx, double r, int m, double complex *res, Params params, Disk *disk) {
+    double om = disk->omega[indx];
+    double c2 = disk->c2[indx];
+    double mu = disk->dlsdlr[indx];
+    double k2om = disk->kappa2[indx]/(2*om);
     double phat = m*(om - params.omf);
     double invdlr2 = -2./(params.dlr*params.dlr);
     double norm = (params.iso) ? 1.0 : c2;
@@ -22,16 +22,16 @@ void main_diag(int indx, double r, int m, double complex *res, Params params, Di
     res[7] = I*m*norm/r  ;                     
     res[8] = I*(phat - params.ieps*I)  ;    
 
-    viscosity_coeffs_u(indx,r,res,m,1.0);
-    viscosity_d2coeffs_u(indx,r,res,invdlr2);
-    viscosity_coeffs_v(indx,r,&res[params.nrhs],m,1.0);
-    viscosity_d2coeffs_v(indx,r,&res[params.nrhs],invdlr2);
+    viscosity_coeffs_u(indx,r,res,m,1.0,params,disk);
+    viscosity_d2coeffs_u(indx,r,res,invdlr2,params,disk);
+    viscosity_coeffs_v(indx,r,&res[params.nrhs],m,1.0,params,disk);
+    viscosity_d2coeffs_v(indx,r,&res[params.nrhs],invdlr2,params,disk);
     return;
 }
 
-void upper_diag(int indx, double r, int m, double complex *res, Params params, Disk disk) {
+void upper_diag(int indx, double r, int m, double complex *res, Params params, Disk *disk) {
 
-   double c2 = disk.c2[indx];
+   double c2 = disk->c2[indx];
    double invdlr = .5/params.dlr;
    double invdlr2 = 1./(params.dlr*params.dlr);
    double norm = (params.iso) ? 1.0 : c2;
@@ -41,16 +41,16 @@ void upper_diag(int indx, double r, int m, double complex *res, Params params, D
    res[2] = c2/(norm*r) * invdlr;
    res[6] = norm/ r * invdlr;
 
-   viscosity_dcoeffs_u(indx,r,res,m,invdlr);
-   viscosity_dcoeffs_v(indx,r,&res[params.nrhs],m,invdlr);
-    viscosity_d2coeffs_u(indx,r,res,invdlr2);
-    viscosity_d2coeffs_v(indx,r,&res[params.nrhs],invdlr2);
+   viscosity_dcoeffs_u(indx,r,res,m,invdlr,params,disk);
+   viscosity_dcoeffs_v(indx,r,&res[params.nrhs],m,invdlr,params,disk);
+    viscosity_d2coeffs_u(indx,r,res,invdlr2,params,disk);
+    viscosity_d2coeffs_v(indx,r,&res[params.nrhs],invdlr2,params,disk);
     return;
 }
 
 
-void lower_diag(int indx, double r, int m, double complex *res, Params params, Disk disk) {
-    double c2 = disk.c2[indx];
+void lower_diag(int indx, double r, int m, double complex *res, Params params, Disk *disk) {
+    double c2 = disk->c2[indx];
     double invdlr = -.5/params.dlr;
     double invdlr2 = 1./(params.dlr*params.dlr);
     double norm = (params.iso) ? 1.0 : c2;
@@ -59,10 +59,10 @@ void lower_diag(int indx, double r, int m, double complex *res, Params params, D
     res[2] = c2/(norm*r) * invdlr;
     res[6] = norm/ r * invdlr;
 
-   viscosity_dcoeffs_u(indx,r,res,m,invdlr);
-   viscosity_dcoeffs_v(indx,r,&res[params.nrhs],m,invdlr);
-    viscosity_d2coeffs_u(indx,r,res,invdlr2);
-    viscosity_d2coeffs_v(indx,r,&res[params.nrhs],invdlr2);
+   viscosity_dcoeffs_u(indx,r,res,m,invdlr,params,disk);
+   viscosity_dcoeffs_v(indx,r,&res[params.nrhs],m,invdlr,params,disk);
+    viscosity_d2coeffs_u(indx,r,res,invdlr2,params,disk);
+    viscosity_d2coeffs_v(indx,r,&res[params.nrhs],invdlr2,params,disk);
 
 
     return;
@@ -97,17 +97,16 @@ void zero_outer_bc(double complex *mdn, double complex *ldn) {
 
 }
 
-void lw_inner_bc(int indx, double r0, int m, int eps, double complex *md0, double complex *ud0, Params params, Disk disk) {
+void lw_inner_bc(int indx, double r0, int m, int eps, double complex *md0, double complex *ud0, Params params, Disk *disk) {
     main_diag(indx,r0,m,md0,params,disk);
     lower_diag(indx,r0,m,ud0,params,disk);
         
-    double c2 = disk.c2[indx];
+    double c2 = disk->c2[indx];
     double rb = r0 * exp(-.5*params.dlr);
     double kr = rb*pow( fabs(Dfunc(indx,params.omf,m,params,disk)/c2) ,.5);
     
     double complex fac = (1 - .5*eps*I*kr*params.dlr)/(1 + .5*eps*I*kr*params.dlr);
 
-//    printf("%lg\t%lg\t%lg+I%lg\n",rb,kr,creal(fac),cimag(fac));
     int i;
     for(i=0;i<9;i++) {
         md0[i] += fac*ud0[i];
@@ -115,11 +114,11 @@ void lw_inner_bc(int indx, double r0, int m, int eps, double complex *md0, doubl
     upper_diag(indx,r0,m,ud0,params,disk);
     return;
 } 
-void lw_outer_bc(int indx, double rn, int m, int eps, double complex *mdn,  double complex *ldn, Params params, Disk disk) {
+void lw_outer_bc(int indx, double rn, int m, int eps, double complex *mdn,  double complex *ldn, Params params, Disk *disk) {
     main_diag(indx,rn,m,mdn,params,disk);
     upper_diag(indx,rn,m,ldn,params,disk);
     
-    double c2 = disk.c2[indx];
+    double c2 = disk->c2[indx];
     double rb = rn * exp(.5*params.dlr);
     double kr = rb*pow( fabs(Dfunc(indx,params.omf,m,params,disk)/c2) ,.5);
     
@@ -133,7 +132,7 @@ void lw_outer_bc(int indx, double rn, int m, int eps, double complex *mdn,  doub
     return;
 } 
 
-void construct_matrix(double *r, double complex *ld, double complex *md, double complex *ud, double complex *fd, double *dppot, double *drpot, int m, Params params, Disk disk) {
+void construct_matrix(double *r, double complex *ld, double complex *md, double complex *ud, double complex *fd, double *dppot, double *drpot, int m, Params params, Disk *disk) {
     int i;
     int size = params.nrhs*params.nrhs;
     int n = params.n;

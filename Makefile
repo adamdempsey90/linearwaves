@@ -46,11 +46,11 @@ COBJECTS=$(addprefix $(BIN),$(OBJECTS))
 CHEADER=$(addprefix $(SRC),$(HEADER))
 
 
+nopara: $(CSOURCES) $(EXECUTABLE)
 para: CFLAGS += -D_MPI
 para: CC=$(MPICC)
 para: $(CSOURCES) $(PEXECUTABLE)
 
-nopara: $(CSOURCES) $(EXECUTABLE)
 
 all: $(CSOURCES) $(EXECUTABLE)
 

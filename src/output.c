@@ -1,29 +1,29 @@
 #include "linearwaves.h"
 
 
-void output_disk(char *fname) {
+void output_disk(char *fname,Params params, Disk *disk) {
     FILE *f = fopen(fname,"w");
     double temp;
     temp = (int)params.n;
     fwrite(&temp,sizeof(double),1,f);
-    fwrite(disk.sigma, sizeof(double),params.n,f);
-    fwrite(disk.dlsdlr, sizeof(double),params.n,f);
-    fwrite(disk.d2lsdlr, sizeof(double),params.n,f);
-    fwrite(disk.c2, sizeof(double),params.n,f);
-    fwrite(disk.omega, sizeof(double),params.n,f);
-    fwrite(disk.dlomdlr, sizeof(double),params.n,f);
-    fwrite(disk.dlnudlr, sizeof(double),params.n,f);
-    fwrite(disk.dlTdlr, sizeof(double),params.n,f);
-    fwrite(disk.d2lTdlr, sizeof(double),params.n,f);
-    fwrite(disk.kappa2, sizeof(double),params.n,f);
-    fwrite(disk.nu, sizeof(double),params.n,f);
-    fwrite(disk.pres, sizeof(double),params.n,f);
-    fwrite(disk.dpdr, sizeof(double),params.n,f);
+    fwrite(disk->sigma, sizeof(double),params.n,f);
+    fwrite(disk->dlsdlr, sizeof(double),params.n,f);
+    fwrite(disk->d2lsdlr, sizeof(double),params.n,f);
+    fwrite(disk->c2, sizeof(double),params.n,f);
+    fwrite(disk->omega, sizeof(double),params.n,f);
+    fwrite(disk->dlomdlr, sizeof(double),params.n,f);
+    fwrite(disk->dlnudlr, sizeof(double),params.n,f);
+    fwrite(disk->dlTdlr, sizeof(double),params.n,f);
+    fwrite(disk->d2lTdlr, sizeof(double),params.n,f);
+    fwrite(disk->kappa2, sizeof(double),params.n,f);
+    fwrite(disk->nu, sizeof(double),params.n,f);
+    fwrite(disk->pres, sizeof(double),params.n,f);
+    fwrite(disk->dpdr, sizeof(double),params.n,f);
 
     fclose(f);
 }
 
-void output(double *r, double complex *sol, double *lamex, double *lamdep, double *drfw, double *fw, char *fname) {
+void output(double *r, double complex *sol, double *lamex, double *lamdep, double *drfw, double *fw, char *fname, Params params) {
  
     FILE *f = fopen(fname,"w");
 
@@ -68,7 +68,7 @@ void output(double *r, double complex *sol, double *lamex, double *lamdep, doubl
     fclose(f);
     return;
 }
-void output_torques(char *fname, Grid *grid) {
+void output_torques(char *fname, Params params,Grid *grid) {
     FILE *f = fopen(fname,"w");
 
     printf("Outputting to %s\n",fname);
@@ -94,7 +94,7 @@ void output_torques(char *fname, Grid *grid) {
 
 }
 
-void output_matrix(double complex *ld, double complex *md, double complex *ud, double complex *fd) {
+void output_matrix(double complex *ld, double complex *md, double complex *ud, double complex *fd, Params params) {
 
     FILE *f = fopen("outputs/matrix.dat","w");
 

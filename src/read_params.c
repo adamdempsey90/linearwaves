@@ -8,138 +8,138 @@
 #define FPRINT_INT(F,NAME,VAL) fprintf(f,"%s = %d\n",NAME,VAL)
 #define FPRINT_STR(F,NAME,VAL) fprintf(f,"%s = %s\n",NAME,VAL)
 
-void set_var(char *name,int int_val, double double_val, int bool_val, char *str_val) {
+void set_var(char *name,int int_val, double double_val, int bool_val, char *str_val, Params *params) {
     // Ints
     if (strcmp(name,"n") == 0) {
-        params.n = int_val;
+        params->n = int_val;
         PRINT_INT(name,int_val);
     }
     else if (strcmp(name,"nphi") == 0) {
-        params.nphi = int_val;
+        params->nphi = int_val;
         PRINT_INT(name,int_val);
     }
     else if (strcmp(name,"nrhs") == 0) {
-        params.nrhs = int_val;
+        params->nrhs = int_val;
         PRINT_INT(name,int_val);
     }
     else if (strcmp(name,"mstart") == 0) {
-        params.mstart = int_val;
+        params->mstart = int_val;
         PRINT_INT(name,int_val);
     }
     else if (strcmp(name,"mend") == 0) {
-        params.mend = int_val;
+        params->mend = int_val;
         PRINT_INT(name,int_val);
     }
     // Doubles
     else if (strcmp(name,"h") == 0) {	
-        params.h = double_val;
+        params->h = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
     else if (strcmp(name,"mu") == 0) {	
-        params.mu = double_val;
+        params->mu = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
     else if (strcmp(name,"delta") == 0) {	
-        params.delta = double_val;
+        params->delta = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
     else if (strcmp(name,"nuindx") == 0) {	
-        params.nuindx = double_val;
+        params->nuindx = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
     else if (strcmp(name,"eta") == 0) {	
-        params.eta = double_val;
+        params->eta = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
     else if (strcmp(name,"alpha") == 0) {	
-        params.alpha = double_val;
+        params->alpha = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
     else if (strcmp(name,"omf") == 0) {	
-        params.omf = double_val;
+        params->omf = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
     else if (strcmp(name,"f") == 0) {	
-        params.f = double_val;
+        params->f = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
     else if (strcmp(name,"sig0") == 0) {	
-        params.sig0 = double_val;
+        params->sig0 = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
     else if (strcmp(name,"ieps") == 0) {	
-        params.ieps = double_val;
+        params->ieps = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
     else if (strcmp(name,"rmin") == 0) {	
-        params.rmin = double_val;
+        params->rmin = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
     else if (strcmp(name,"rmax") == 0) {	
-        params.rmax = double_val;
+        params->rmax = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
     else if (strcmp(name,"eps") == 0) {	
-        params.eps = double_val;
+        params->eps = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
     // Bools
     else if (strcmp(name,"iso") == 0) {	
-        params.iso = bool_val;
+        params->iso = bool_val;
         PRINT_STR(name,str_val);
 
     }
     else if (strcmp(name,"fromfile") == 0) {	
-        params.fromfile = bool_val;
+        params->fromfile = bool_val;
         PRINT_STR(name,str_val);
 
     }
     else if (strcmp(name,"pcorrect") == 0) {	
-        params.pcorrect = bool_val;
+        params->pcorrect = bool_val;
         PRINT_STR(name,str_val);
 
     }
     else if (strcmp(name,"zero_inner_bc") == 0) {	
-        params.zero_inner_bc = bool_val;
+        params->zero_inner_bc = bool_val;
         PRINT_STR(name,str_val);
 
     }
     else if (strcmp(name,"zero_outer_bc") == 0) {	
-        params.zero_outer_bc = bool_val;
+        params->zero_outer_bc = bool_val;
         PRINT_STR(name,str_val);
 
     }
     else if (strcmp(name,"simple_visc") == 0) {	
-        params.simple_visc = bool_val;
+        params->simple_visc = bool_val;
         PRINT_STR(name,str_val);
 
     }
     else if (strcmp(name,"indirect") == 0) {	
-        params.simple_visc = bool_val;
+        params->simple_visc = bool_val;
         PRINT_STR(name,str_val);
 
     }
     // Strings
     else if (strcmp(name,"outputname") == 0) {	
-        sprintf(params.outputname,"%s",str_val);
+        sprintf(params->outputname,"%s",str_val);
         PRINT_STR(name,str_val);
 
     }
     else if (strcmp(name,"diskfile") == 0) {	
-        sprintf(params.diskfile,"%s",str_val);
+        sprintf(params->diskfile,"%s",str_val);
         PRINT_STR(name,str_val);
 
     }
@@ -147,7 +147,7 @@ void set_var(char *name,int int_val, double double_val, int bool_val, char *str_
     return;
 }
 
-void parse_argument(int argc, char *argv[]) {
+void parse_argument(int argc, char *argv[], Params *params) {
     int j;
     unsigned int i;
     char name[100],strval[100];
@@ -165,7 +165,7 @@ void parse_argument(int argc, char *argv[]) {
         if (testbool == 'Y') bool_val = TRUE;
         else bool_val = FALSE;
         for (i = 0; i<strlen(name); i++) name[i] = (char)tolower(name[i]);
-        set_var(name,ival,dval,bool_val,strval);
+        set_var(name,ival,dval,bool_val,strval,params);
     }
 
 
@@ -173,7 +173,7 @@ void parse_argument(int argc, char *argv[]) {
     return;
 }
 
-void read_param_file(char *fname, int argc, char *argv[]) {
+void read_param_file(char *fname, int argc, char *argv[], Params *params, Planet *planet) {
     FILE *f;
 
     char tok[20] = "\t :=>";
@@ -207,22 +207,23 @@ void read_param_file(char *fname, int argc, char *argv[]) {
             
             for (i = 0; i<strlen(name); i++) name[i] = (char)tolower(name[i]);
             
-            set_var(name,int_val,temp,bool_val,strval);
+            set_var(name,int_val,temp,bool_val,strval,params);
 
         }
     }
 
     printf("Redefined on the command line:\n");
     if (argc > 0) {
-        parse_argument(argc,argv);
+        parse_argument(argc,argv,params);
     }
 
 
-    planet.eps = params.eps;
-    planet.eps2 = planet.eps*planet.eps;
-    planet.indirect = params.indirect;
-    planet.a = 1;
-    planet.mp = 1;
+    params->dlr = log(params->rmax/params->rmin) / (double)params->n;
+    planet->eps = params->eps;
+    planet->eps2 = planet->eps*planet->eps;
+    planet->indirect = params->indirect;
+    planet->a = 1;
+    planet->mp = 1;
 
     return;
 }

@@ -1,7 +1,7 @@
 # Grid Parameters
-n = 4096
+n = 1024
 nphi = 2000
-rmin = .05
+rmin = .1
 rmax = 10
 nrhs = 3
 
@@ -16,7 +16,7 @@ delta = -1.0
 f = 0
 nuindx = 0.5
 eta = 0
-alpha = 0.001
+alpha = 0.003
 omf = 1.0
 sig0 = 1.0
 
@@ -25,18 +25,18 @@ sig0 = 1.0
 iso = Yes
 pcorrect = No
 simple_visc = Yes
-ieps = 0.20
+ieps = 0.0
 
 # Potential Parameters
 eps = 0.05
-indirect = No
+indirect = Yes
 
 # Boundary Conditions
-zero_inner_bc = Yes
-zero_outer_bc = No
+zero_inner_bc = No
+zero_outer_bc = Yes
 
 # Read background from file
-fromfile = Yes
+fromfile = No
 diskfile = profiles/zt_ex.bin
 
 # Output file

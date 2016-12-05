@@ -2,7 +2,7 @@
 #include <fftw3.h>
 
 
-double potential(double phi, double x) {
+double potential(double phi, double x, Planet planet) {
     double res = -pow(x*x + 1 + planet.eps2 - 2*x*cos(phi),-.5);
     if (planet.indirect) {
         res += cos(phi)*1./(x*x);
@@ -10,7 +10,7 @@ double potential(double phi, double x) {
     return res;
 }
 
-double dr_potential(double phi, double x) {
+double dr_potential(double phi, double x, Planet planet) {
     double res = ( x - cos(phi)) * pow(x*x + 1 + planet.eps2 - 2*x*cos(phi),-1.5);
 
     if (planet.indirect) {
@@ -21,11 +21,9 @@ double dr_potential(double phi, double x) {
 
 
 
-void fft_potential(double *r, double *pot1, double *pot2, int num_modes) {
-    int nphi = params.nphi;
+void fft_potential(double *r, double *pot1, double *pot2, int num_modes, int nphi, int howmany, Planet planet) {
     int rank = 1; 
     int n[] = {nphi}; 
-    int howmany = params.n;
     int idist = nphi;
     int odist = nphi;
     int istride = 1;
@@ -35,31 +33,31 @@ void fft_potential(double *r, double *pot1, double *pot2, int num_modes) {
     fftw_r2r_kind kind[] = {FFTW_REDFT00};
 
     int norm = 2*(nphi-1);
-    double *in = (double *)malloc(sizeof(double)*params.n*nphi);
+    double *in = (double *)malloc(sizeof(double)*howmany*nphi);
 
     fftw_plan pr2r = fftw_plan_many_r2r(rank, n, howmany,in,inembed, istride, idist, in, onembed,ostride,odist, kind, FFTW_ESTIMATE);
 
 
-    for(i=0;i<params.n;i++) {
+    for(i=0;i<howmany;i++) {
         for(j=0;j<nphi;j++) {
-            in[j + i*nphi] = potential(M_PI*j/(nphi-1),r[i]);
+            in[j + i*nphi] = potential(M_PI*j/(nphi-1),r[i],planet);
         }
     }
     fftw_execute(pr2r);
-    for(i=0;i<params.n;i++) {
+    for(i=0;i<howmany;i++) {
         for(j=1;j<num_modes+1;j++) {
-            pot1[i + (j-1)*params.n] = in[j + i*nphi]/norm;
+            pot1[i + (j-1)*howmany] = in[j + i*nphi]/norm;
         }
     }
-    for(i=0;i<params.n;i++) {
+    for(i=0;i<howmany;i++) {
         for(j=0;j<nphi;j++) {
-            in[j + i*nphi] = dr_potential(M_PI*j/(nphi-1),r[i]);
+            in[j + i*nphi] = dr_potential(M_PI*j/(nphi-1),r[i],planet);
         }
     }
     fftw_execute(pr2r);
-    for(i=0;i<params.n;i++) {
+    for(i=0;i<howmany;i++) {
         for(j=1;j<num_modes+1;j++) {
-            pot2[i + (j-1)*params.n] = in[j + i*nphi]/norm;
+            pot2[i + (j-1)*howmany] = in[j + i*nphi]/norm;
         }
     }
     fftw_destroy_plan(pr2r);
