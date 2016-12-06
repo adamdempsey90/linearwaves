@@ -1,8 +1,8 @@
 # Grid Parameters
 n = 1024
 nphi = 2000
-rmin = .1
-rmax = 10
+rmin = .3
+rmax = 3
 nrhs = 3
 
 # What modes to calculate
@@ -33,7 +33,7 @@ indirect = Yes
 
 # Boundary Conditions
 zero_inner_bc = No
-zero_outer_bc = Yes
+zero_outer_bc = No
 
 # Read background from file
 fromfile = No

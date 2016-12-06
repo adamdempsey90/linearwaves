@@ -1,16 +1,13 @@
 #include "linearwaves.h"
-#ifdef _MPI
-#include <mpi.h>
-#endif
 
 int main(int argc, char *argv[]) {
 #ifdef _MPI
     MPI_Init(&argc,&argv);
-    MPI_Comm_size(MPI_COMM_WORLD,&np);
-    MPI_Comm_rank(MPI_COMM_WORLD,&rank);    
+    MPI_Comm_size(MPI_COMM_WORLD,&proc.np);
+    MPI_Comm_rank(MPI_COMM_WORLD,&proc.rank);    
 #else
-    np = 1;
-    rank = 0;
+    proc.np = 1;
+    proc.rank = 0;
 #endif
     char parfile[256];
     if (argc < 2) {
@@ -35,12 +32,17 @@ int main(int argc, char *argv[]) {
     int mstart = params.mstart;
     int mend = params.mend;
     params.nm = mend-mstart+1;
-    int num_modes = params.nm/np;
+    int num_modes = params.nm/proc.np;
     printf("%lg\t%lg\n",params.rmin,params.rmax);
 
+    
     Grid *grid = (Grid *)malloc(sizeof(Grid));
     init_grid(mstart,mend, grid,params,planet,disk);
-
+/*
+    double TL, TR;
+    get_excited_torques(mstart,mend,&TL, &TR, grid,params,planet,disk);
+    printf("Final %lg\t%lg\n",TL,TR);
+*/
 
     int i,j;
 
@@ -52,9 +54,9 @@ int main(int argc, char *argv[]) {
     }
 
     char fname[256];
-    sprintf(fname,"%s.%d",params.outputname,rank);
+    sprintf(fname,"%s.%d",params.outputname,proc.rank);
     output_torques(fname,params,grid);
-    if (rank == 0) {
+    if (proc.rank == 0) {
         sprintf(fname,"%s.disk",params.outputname);
         output_disk(fname,params,disk);
         printf("Finished\n");

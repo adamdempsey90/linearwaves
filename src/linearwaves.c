@@ -1,22 +1,21 @@
 #include "linearwaves.h"
-
-void excited_torques(Grid *grid, double *TL, double *TR, int m, Params params, Planet planet, Disk *disk) {
+/*
+void excited_torques(double *r, double complex *sp, double *dppot, double *TL, double *TR, int m, Params params, Planet planet, Disk *disk) {
 
     double lamex;
     int i;
-    double r,s,dp, rfac;
+    double rval,rfac;
 
     for(i=0;i<params.n;i++) {
-        r = grid->r[i];
-        rfac = r*r* 2*M_PI*params.dlr;
-        s = sig(i,grid->s[i],params,disk);
-        dp = grid->dppot[i];    
-        lamex = -2*m*creal(cimag(s)*dp);
-        if (r >= planet.a) *TR += lamex * rfac;
-        if (r <= planet.a) *TL -= lamex * rfac;
+        rval = r[i];
+        rfac = rval*rval* 2*M_PI*params.dlr;
+        lamex = -2*m*creal(cimag(sp[i])*dppot[i]);
+        if (rval >= planet.a) *TR += lamex * rfac;
+        if (rval <= planet.a) *TL -= lamex * rfac;
     }
     return;
 }
+*/
 void linearwaves(int i, Grid *grid, Params params, Planet planet, Disk *disk) {
     
     int m = grid->mvals[i];
@@ -75,7 +74,7 @@ void linearwaves(int i, Grid *grid, Params params, Planet planet, Disk *disk) {
 
 
 void init_grid(int mstart, int mend, Grid *grid, Params params, Planet planet, Disk *disk) {
-    int num_modes = (mend-mstart+1)/np;
+    int num_modes = (mend-mstart+1)/proc.np;
 
     grid->mvals = (int *)malloc(sizeof(int)*num_modes);
     grid->r = (double *)malloc(sizeof(double)*params.n);
@@ -102,12 +101,12 @@ void init_grid(int mstart, int mend, Grid *grid, Params params, Planet planet, D
     grid->n = params.n;
     grid->nm = num_modes;
     for(i=0;i<num_modes;i++) {
-        grid->mvals[i] = rank*num_modes + mstart + i;
+        grid->mvals[i] = proc.rank*num_modes + mstart + i;
     }
     double *dp_pot_full = (double *)malloc(sizeof(double)*params.n*(params.nm));
     double *dr_pot_full = (double *)malloc(sizeof(double)*params.n*(params.nm));
 /* Do FFT of potential on root */
-    if (rank == 0) {
+    if (proc.rank == 0) {
         fft_potential(grid->r,dp_pot_full,dr_pot_full,params.nm,params.nphi,params.n,planet);
     }
 #ifdef _MPI
@@ -156,16 +155,16 @@ void free_grid(Grid *grid) {
 }
 
 
-void get_excited_torques(int mstart, int mend, double *TL, double *TR, Params params, Planet planet, Disk *disk) {
-    Grid *grid = (Grid *)malloc(sizeof(Grid));
-    init_grid(mstart,mend, grid,params,planet,disk);
+void get_excited_torques(int mstart, int mend, double *TL, double *TR, Grid *grid, Params params, Planet planet, Disk *disk) {
+    //Grid *grid = (Grid *)malloc(sizeof(Grid));
+    //init_grid(mstart,mend, grid,params,planet,disk);
     int i;
     int num_modes = mend-mstart+1;
     for(i=0;i<num_modes;i++) {
-        linearwaves(i, grid,params,planet,disk);
-        excited_torques(grid,TL,TR,grid->mvals[i],params,planet,disk);
+        linearwaves(i, grid, params,planet,disk);
+        *TL += grid->TL[i];
+        *TR += grid->TR[i];
     }
-
     free_grid(grid);
 
     return;

@@ -13,7 +13,7 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
     int size = params.nrhs;
     FILE *f;
     char fname[256];
-    sprintf(fname,"outputs/sol%d.dat.%d",m,rank);
+    sprintf(fname,"outputs/sol%d.dat.%d",m,proc.rank);
     f = fopen(fname,"w");
     for(j=0;j<params.n;j++) {
        fprintf(f,"%.16f\t%.16f\t%.16f\t%.16f\t%.16f\t%.16f\n",creal(sol[j*3]),cimag(sol[j*3]),

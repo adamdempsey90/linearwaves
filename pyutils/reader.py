@@ -10,6 +10,7 @@ class Disk():
         self.n,self.nm,self.mi,self.mf = dat[:4].astype(int)
         print(p,self.n,self.nm,self.mi,self.mf)
         dat=dat[4:]
+        self.mvals = np.arange(self.mi,self.mf+1)
 
         self.TL = dat[:self.nm]
         dat=dat[self.nm:]
@@ -52,18 +53,21 @@ class Disk():
         self.drfd = self.drfw[:,0].copy()
         self.mdot_d = self.fw[:,0].copy()
 
-    def total_torque(self,logx=False,xlims=None,ax=None):
-        if ax is None:
-            fig = plt.figure()
-            ax = fig.add_subplot(111)
-        mvals = 1 + np.arange(len(self.TR))
+
+    def total_torque(self,logx=False,xlims=None,axes=None):
+        if axes is None:
+            fig,axes = plt.subplots(1,2,figsize=(10,5))
         norm = 1./.05**2
-        ax.plot(mvals,self.TR/norm,'ok',label='Outer')
-        ax.plot(mvals,self.TL/norm,'sr',label='Inner')
-        if logx:
-            ax.set_xscale('log')
-        ax.legend(loc='upper right')
-        ax.set_xlabel('m',fontsize=15)
+        axes[0].plot(self.mvals,self.TR/norm,'ok',label='Outer')
+        axes[0].plot(self.mvals,self.TL/norm,'sr',label='Inner')
+        axes[1].plot(self.mvals,self.TR.cumsum()/self.TR.sum(),'--ok')
+        axes[1].plot(self.mvals,self.TL.cumsum()/self.TL.sum(),'-sr')
+        for ax in axes:
+            if logx:
+                ax.set_xscale('log')
+                ax.set_xlabel('m',fontsize=15)
+        axes[0].legend(loc='upper right')
+
     def torque(self,m,logx=True,xlims=None,ax=None,integ=False,from_inner=False,tot=False,**kargs):
         if ax is None:
             fig = plt.figure()
@@ -122,7 +126,7 @@ class Disk():
         if xlims is not None:
             ax.set_xlim(xlims)
             return lamex,lamdep,fw
-    def plot(self,m,logx=True,axes=None,fig=None):
+    def plot(self,m,logx=True,axes=None,fig=None,xlims=None,ylims=None):
         if axes is None:
             fig,axes = plt.subplots(1,3,figsize=(15,5))
         if m == 0:
@@ -135,9 +139,14 @@ class Disk():
             axes[1].plot(self.r,self.v.real[:,i],self.r,self.v.imag[:,i])
             axes[2].plot(self.r,self.s.real[:,i],self.r,self.s.imag[:,i])
 
-        if logx:
-            for ax in axes:
+        for ax in axes:
+            if logx:
                 ax.set_xscale('log')
+            if xlims is not None:
+                ax.set_xlim(xlims)
+            if ylims is not None:
+                ax.set_ylim(ylims)
+
     def __add__(self,fld):
         out = copy.deepcopy(self)
         out.TL = np.hstack((self.TL,fld.TL))
