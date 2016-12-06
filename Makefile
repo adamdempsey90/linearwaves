@@ -1,7 +1,7 @@
 EXECUTABLE=linearwaves
 LIBRARY=liblinearwaves.so
 SOURCES=coeffs.c disk.c main.c output.c ctridiag.c fft.c read_params.c torques.c viscosity.c linearwaves.c interpolation.c
-HEADER=linearwaves.h structs.h prototypes.h
+HEADER=linearwaves.h structs.h prototypes.h defines.h
 LIBHEADER=$(HEADER) liblinear.h
 
 LIBDIR=lib/
@@ -74,6 +74,7 @@ $(LIBRARY): $(COBJECTS)
 installresources: installdirectories
 	@cp $(LIBDIR)$(LIBRARY) /usr/local/lib/
 	@cp $(SRC)prototypes.h /usr/local/include/linearwaves/
+	@cp $(SRC)defines.h /usr/local/include/linearwaves/
 	@cp $(SRC)structs.h /usr/local/include/linearwaves/
 	@cp $(SRC)liblinear.h /usr/local/include/linearwaves/
 
@@ -83,6 +84,7 @@ installdirectories:
 resources: directories
 	@mv $(LIBRARY) $(LIBDIR)
 	@cp $(SRC)prototypes.h $(INCDIR)
+	@cp $(SRC)defines.h $(INCDIR)
 	@cp $(SRC)structs.h $(INCDIR)
 	@cp $(SRC)liblinear.h $(INCDIR)
 
