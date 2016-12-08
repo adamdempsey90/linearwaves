@@ -23,29 +23,8 @@ void interpolation(double *xd, double *yd, int nd, double *x, double *y, double 
     return;
 }
 
-void read_sigma(char *fname, double *lr, double *sigma, double *dlsdlr, double *d2lsdlr, int n) {
-    double temp;
-    size_t ndata;
-    double *xd,*yd;
+void interpolate_onto_grid(double *xd, double *yd, int ndata, double *lr, double *sigma, double *dlsdlr, double *d2lsdlr, int n) {
     int i;
-    size_t fres;
-
-    FILE *f = fopen(fname,"r");
-    ndata = 1;
-    fres = fread(&temp,sizeof(double),ndata,f);
-    FREAD_CHECK(fres,ndata);
-    ndata=(size_t)temp;
-
-    xd = (double *)malloc(sizeof(double)*ndata);
-    yd = (double *)malloc(sizeof(double)*ndata);
-
-    fres = fread(xd,sizeof(double),ndata,f);
-    FREAD_CHECK(fres,ndata);
-    fres =  fread(yd,sizeof(double),ndata,f);
-    FREAD_CHECK(fres,ndata);
-    fclose(f);
-
-
     int jstart = 0;
     int jend = n-1;
 
@@ -69,7 +48,7 @@ void read_sigma(char *fname, double *lr, double *sigma, double *dlsdlr, double *
     int n_interp = jend-jstart +1;
 
     interpolation(xd,yd,ndata,&lr[jstart],&sigma[jstart],&dlsdlr[jstart],&d2lsdlr[jstart],n_interp);
-
+    
     for(i=0;i<jstart;i++) {
         sigma[i] = sigma[jstart] + dlsdlr[jstart]*(lr[i]-lr[jstart]);
         dlsdlr[i] = dlsdlr[jstart];
@@ -80,6 +59,34 @@ void read_sigma(char *fname, double *lr, double *sigma, double *dlsdlr, double *
         dlsdlr[i] = dlsdlr[jend];
         d2lsdlr[i] = 0;
     }
+    return;
+
+}
+
+void read_sigma(char *fname, double *lr, double *sigma, double *dlsdlr, double *d2lsdlr, int n) {
+    double temp;
+    size_t ndata;
+    double *xd,*yd;
+    int i;
+    size_t fres;
+
+    FILE *f = fopen(fname,"r");
+    ndata = 1;
+    fres = fread(&temp,sizeof(double),ndata,f);
+    FREAD_CHECK(fres,ndata);
+    ndata=(size_t)temp;
+
+    xd = (double *)malloc(sizeof(double)*ndata);
+    yd = (double *)malloc(sizeof(double)*ndata);
+
+    fres = fread(xd,sizeof(double),ndata,f);
+    FREAD_CHECK(fres,ndata);
+    fres =  fread(yd,sizeof(double),ndata,f);
+    FREAD_CHECK(fres,ndata);
+    fclose(f);
+
+    interpolate_onto_grid(xd,yd,ndata,lr,sigma,dlsdlr,d2lsdlr,n);
+
     SAFE_FREE(xd);
     SAFE_FREE(yd);
     return;

@@ -45,15 +45,15 @@ void cthomas_alg(double complex *a, double complex *b, double complex *c, double
 void cthomas_alg_block(double complex *a, double complex *b, double complex *c, double complex *d, int n, int m);
 void cconstruct_total_matrix(double complex *ld, double complex *md, double complex *ud, double complex *mat, int n, int m);
 /* fft.c */
-void fft_potential(double *r, double *pot1, double *pot2, int num_modes, int nphi, int howmany, Planet planet);
+void fft_potential(double *r, double *pot1, double *pot2, int num_modes, int nphi, int howmany, double eps2, int indirect);
 /* interpolation.c */
 void read_sigma(char *fname, double *lr, double *sigma, double *dlsdlr, double *d2lsdlr, int n);
 /* read_params.c */
 void set_var(char *name, int int_val, double double_val, int bool_val, char *str_val, Params *params);
 void parse_argument(int argc, char *argv[], Params *params);
-void read_param_file(char *fname, int argc, char *argv[], Params *params, Planet *planet);
+void read_param_file(char *fname, int argc, char *argv[], Params *params);
 /* torques.c */
-void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *dppot, double *TL, double *TR, int m, Params params, Planet planet, Disk *disk);
+void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *dppot, double *TL, double *TR, int m, Params params, Disk *disk, int silent);
 /* output.c */
 void output_disk(char *fname, Params params, Disk *disk);
 void output(double *r, double complex *sol, double *lamex, double *lamdep, double *drfw, double *fw, char *fname, Params params);

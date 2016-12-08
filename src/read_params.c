@@ -173,7 +173,7 @@ void parse_argument(int argc, char *argv[], Params *params) {
     return;
 }
 
-void read_param_file(char *fname, int argc, char *argv[], Params *params, Planet *planet) {
+void read_param_file(char *fname, int argc, char *argv[], Params *params) {
     FILE *f;
 
     char tok[20] = "\t :=>";
@@ -219,11 +219,9 @@ void read_param_file(char *fname, int argc, char *argv[], Params *params, Planet
 
 
     params->dlr = log(params->rmax/params->rmin) / (double)params->n;
-    planet->eps = params->eps;
-    planet->eps2 = planet->eps*planet->eps;
-    planet->indirect = params->indirect;
-    planet->a = 1;
-    planet->mp = 1;
+    params->eps2 = params->eps*params->eps;
+    params->indirect = params->indirect;
+    params->a = 1;
 
     return;
 }

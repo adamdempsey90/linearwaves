@@ -11,21 +11,17 @@ typedef struct Params {
     double ieps;
     int iso,pcorrect,zero_inner_bc, zero_outer_bc;
     int simple_visc;
-    int indirect;
     int fromfile;
     char outputname[512];
     char diskfile[512];
     double eps;
+    double eps2;
+    int indirect;
+    double softening, softening2;
+    double a;
 
 
 }    Params;
-typedef struct Planet {
-    
-    double mp, eps,eps2, a;
-
-    int indirect;
-
-}    Planet;
 typedef struct Grid {
     int n, nm;
     int *mvals;

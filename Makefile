@@ -73,13 +73,13 @@ $(LIBRARY): $(COBJECTS)
 
 installresources: installdirectories
 	@cp $(LIBDIR)$(LIBRARY) /usr/local/lib/
-	@cp $(SRC)prototypes.h /usr/local/include/linearwaves/
-	@cp $(SRC)defines.h /usr/local/include/linearwaves/
-	@cp $(SRC)structs.h /usr/local/include/linearwaves/
-	@cp $(SRC)liblinear.h /usr/local/include/linearwaves/
+	@cp $(SRC)prototypes.h /usr/local/include/liblinear/
+	@cp $(SRC)defines.h /usr/local/include/liblinear/
+	@cp $(SRC)structs.h /usr/local/include/liblinear/
+	@cp $(SRC)liblinear.h /usr/local/include/liblinear/
 
 installdirectories:
-	@mkdir -p /usr/local/include/linearwaves/
+	@mkdir -p /usr/local/include/liblinear/
 
 resources: directories
 	@mv $(LIBRARY) $(LIBDIR)

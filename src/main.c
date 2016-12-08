@@ -20,13 +20,12 @@ int main(int argc, char *argv[]) {
 
 
     Params params;
-    Planet planet;
     Disk *disk = (Disk *)malloc(sizeof(Disk));
     if (argc > 2) {
-        read_param_file(parfile,argc-2,&argv[2],&params,&planet);
+        read_param_file(parfile,argc-2,&argv[2],&params);
     }
     else {
-        read_param_file(parfile,0,NULL,&params,&planet);
+        read_param_file(parfile,0,NULL,&params);
     }
     printf("Read file\n");
     int mstart = params.mstart;
@@ -37,20 +36,17 @@ int main(int argc, char *argv[]) {
 
     
     Grid *grid = (Grid *)malloc(sizeof(Grid));
-    init_grid(mstart,mend, grid,params,planet,disk);
+    init_grid(mstart,mend, grid,params,disk);
 /*
     double TL, TR;
-    get_excited_torques(mstart,mend,&TL, &TR, grid,params,planet,disk);
+    get_excited_torques(mstart,mend,&TL, &TR, grid,params,disk);
     printf("Final %lg\t%lg\n",TL,TR);
 */
 
     int i,j;
 
     for(i=0;i<num_modes;i++) {
-        linearwaves(i, grid,params,planet,disk);
-        for(j=0;j<params.n;j++) {
-       //     printf("%lg\t%lg\n",grid->r[j],creal(grid->u[j + i*params.n]));
-        }
+        linearwaves(i, grid,params,disk,FALSE);
     }
 
     char fname[256];
@@ -63,7 +59,7 @@ int main(int argc, char *argv[]) {
     }
     /*
     printf("free grid\n");
-    free_grid(grid);
+    free_linear_grid(grid);
     printf("free grid\n");
     SAFE_FREE(grid);
     printf("free grid\n");

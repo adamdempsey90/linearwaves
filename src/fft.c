@@ -2,18 +2,18 @@
 #include <fftw3.h>
 
 
-double potential(double phi, double x, Planet planet) {
-    double res = -pow(x*x + 1 + planet.eps2 - 2*x*cos(phi),-.5);
-    if (planet.indirect) {
+double potential(double phi, double x, double eps2, int indirect) {
+    double res = -pow(x*x + 1 + eps2 - 2*x*cos(phi),-.5);
+    if (indirect) {
         res += cos(phi)*1./(x*x);
     }
     return res;
 }
 
-double dr_potential(double phi, double x, Planet planet) {
-    double res = ( x - cos(phi)) * pow(x*x + 1 + planet.eps2 - 2*x*cos(phi),-1.5);
+double dr_potential(double phi, double x, double eps2, int indirect) {
+    double res = ( x - cos(phi)) * pow(x*x + 1 + eps2 - 2*x*cos(phi),-1.5);
 
-    if (planet.indirect) {
+    if (indirect) {
         res -= 2* cos(phi)*1./(x*x*x);
     }
     return res;
@@ -21,7 +21,7 @@ double dr_potential(double phi, double x, Planet planet) {
 
 
 
-void fft_potential(double *r, double *pot1, double *pot2, int num_modes, int nphi, int howmany, Planet planet) {
+void fft_potential(double *r, double *pot1, double *pot2, int num_modes, int nphi, int howmany, double eps2, int indirect) {
     int rank = 1; 
     int n[] = {nphi}; 
     int idist = nphi;
@@ -40,7 +40,7 @@ void fft_potential(double *r, double *pot1, double *pot2, int num_modes, int nph
 
     for(i=0;i<howmany;i++) {
         for(j=0;j<nphi;j++) {
-            in[j + i*nphi] = potential(M_PI*j/(nphi-1),r[i],planet);
+            in[j + i*nphi] = potential(M_PI*j/(nphi-1),r[i],eps2,indirect);
         }
     }
     fftw_execute(pr2r);
@@ -51,7 +51,7 @@ void fft_potential(double *r, double *pot1, double *pot2, int num_modes, int nph
     }
     for(i=0;i<howmany;i++) {
         for(j=0;j<nphi;j++) {
-            in[j + i*nphi] = dr_potential(M_PI*j/(nphi-1),r[i],planet);
+            in[j + i*nphi] = dr_potential(M_PI*j/(nphi-1),r[i],eps2,indirect);
         }
     }
     fftw_execute(pr2r);

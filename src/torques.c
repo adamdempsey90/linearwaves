@@ -2,7 +2,7 @@
 
 
 
-void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *dppot, double *TL, double *TR,int m, Params params, Planet planet, Disk *disk) {
+void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *dppot, double *TL, double *TR,int m, Params params, Disk *disk, int silent) {
     double complex lf[3], uf[3], mf[3];
     double invdlr, invdlr2;
     double om;
@@ -67,8 +67,8 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
         for(j=0;j<params.nrhs;j++) mf[j] = 0;
         lamex[i] = -2*m*creal(cimag(s)*dppot[i]);
         //lamex[i] = r[i]*2*creal(conj(s)*-dppot[i]*I*m/r[i]);
-        if (r[i] >= planet.a) *TR += lamex[i]*2*M_PI*r[i]*r[i]*params.dlr;
-        if (r[i] <= planet.a) *TL -= lamex[i]*2*M_PI*r[i]*r[i]*params.dlr;
+        if (r[i] >= params.a) *TR += lamex[i]*2*M_PI*r[i]*r[i]*params.dlr;
+        if (r[i] <= params.a) *TL -= lamex[i]*2*M_PI*r[i]*r[i]*params.dlr;
     }
 
     lamdep[0] = 0;
@@ -80,8 +80,9 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
     fw[params.n-1] = 0;
     drfw[params.n-1] = 0;
     lamex[params.n-1] = 0;
-    printf("%d\t%lg\t%lg\n",m,*TL,*TR);
-
+    if (!silent) {
+        printf("%d\t%lg\t%lg\n",m,*TL,*TR);
+    }
     return;
 
 }
@@ -92,8 +93,8 @@ void calc_linear_torques(double *r, double *sol, double *dppot, double *TL, doub
     for(i=0;i<params.n;i++) {
         sval = cimag(sig(i,r[i],sol[i*params.nrhs+2]));
         lamex = -2*m*creal(sval*dppot[i]);
-        if (r[i] >= planet.a) *TR += lamex*2*M_PI*r[i]*r[i]*params.dlr;
-        if (r[i] <= planet.a) *TL -= lamex*2*M_PI*r[i]*r[i]*params.dlr;
+        if (r[i] >= params.a) *TR += lamex*2*M_PI*r[i]*r[i]*params.dlr;
+        if (r[i] <= params.a) *TL -= lamex*2*M_PI*r[i]*r[i]*params.dlr;
     }
     return;
 }

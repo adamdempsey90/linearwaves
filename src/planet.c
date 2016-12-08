@@ -6,39 +6,39 @@ typedef struct GSL_params {
 } GSL_params;
 
 
-void init_planet(void) {
+void init_params(void) {
 
-    planet.mp = 1e-5;
-    planet.eps = .6*.05;
-    planet.eps2 = planet.eps*planet.eps;
-    planet.a = 1;
-    planet.indirect = TRUE;
+    params.mp = 1e-5;
+    params.softening = .6*.05;
+    params.softening2 = params.softening*params.softening;
+    params.a = 1;
+    params.indirect = TRUE;
     return;
 
 }
 
 double potential(double phi, double x) {
-    double res = -pow(x*x + planet.a*planet.a + planet.eps2 - 2*planet.a*x*cos(phi),-.5);
-    if (planet.indirect) {
-        res += cos(phi)*planet.a/(x*x);
+    double res = -pow(x*x + params.a*params.a + params.softening2 - 2*params.a*x*cos(phi),-.5);
+    if (params.indirect) {
+        res += cos(phi)*params.a/(x*x);
     }
     return res;
 }
 
 double dr_potential(double phi, double x) {
-    double res = ( x - planet.a*cos(phi)) * pow(x*x + planet.a*planet.a + planet.eps2 - 2*planet.a*x*cos(phi),-1.5);
+    double res = ( x - params.a*cos(phi)) * pow(x*x + params.a*params.a + params.softening2 - 2*params.a*x*cos(phi),-1.5);
 
-    if (planet.indirect) {
-        res -= 2* cos(phi)*planet.a/(x*x*x);
+    if (params.indirect) {
+        res -= 2* cos(phi)*params.a/(x*x*x);
     }
     return res;
 }
 
 double dp_potential(double phi, double x) {
-    double res = planet.a*x*sin(phi)* pow(x*x + planet.a*planet.a + planet.eps2 - 2*planet.a*x*cos(phi),-1.5);
+    double res = params.a*x*sin(phi)* pow(x*x + params.a*params.a + params.softening2 - 2*params.a*x*cos(phi),-1.5);
 
-    if (planet.indirect) {
-        res +=  sin(phi)*planet.a/(x*x);
+    if (params.indirect) {
+        res +=  sin(phi)*params.a/(x*x);
     }
     return res;
 }
@@ -76,8 +76,8 @@ void force(double x, int m, double complex *res) {
     double res_r, dr_res_r;
     gsl_integration_qag(&F1,0,M_PI, tol, tol, nspace, gsl_order , w, &res_r, &error);
     gsl_integration_qag(&F2,0,M_PI, tol, tol, nspace, gsl_order , w, &dr_res_r, &error);
-    res_r *= planet.mp/M_PI;
-    dr_res_r *= planet.mp/M_PI;
+    res_r *= params.mp/M_PI;
+    dr_res_r *= params.mp/M_PI;
 
     res[0] = dr_res_r;// *-1;
     res[1] = res_r ;//* -I * m/x;
