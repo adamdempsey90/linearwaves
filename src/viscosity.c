@@ -13,11 +13,11 @@ void viscosity_coeffs_u(int indx, double r, double complex *res, int m, double f
     double invr2 = invr*invr;
 
     if (params.simple_visc) {
-        res[0] += -visc*(m*m + 1)*invr2 * fac;
+        res[0] += -visc*(m*m + 1)*invr2 * fac ;
         res[1] += -visc*2*I*m*invr2 * fac;
     }
     else {
-        res[0] += -visc*(m*m + gamma*eta)*invr2 * fac;
+        res[0] += -visc*(2 + m*m + (gamma-1)*eta)*invr2 * fac;
         res[1] += -visc*(3 + eta*(gamma-1))*I*m*invr2 * fac;
         res[2] += visc*I*m*drom*norm*invr * fac;
     }
@@ -63,8 +63,8 @@ void viscosity_dcoeffs_u(int indx, double r, double complex *res, int m, double 
     double invr2 = invr*invr;
 
     if (!params.simple_visc) {
-        res[0]  += visc*(2*(gamma-1)-eta*gamma)*invr2*fac;
-        res[1] += visc*I*m*invr2*fac;
+        res[0]  += visc*(2*-eta)*gamma*invr2*fac;
+        res[1] += visc*I*m*(eta-1)*invr2*fac;
     }
     return;
 }
@@ -82,7 +82,7 @@ void viscosity_dcoeffs_v(int indx, double r, double complex *res, int m, double 
     double invr2 = invr*invr;
 
     if (!params.simple_visc) {
-        res[0] += visc*I*m*(1-eta)*invr2*fac;
+        res[0] += visc*I*m*(eta-1)*invr2*fac;
         res[1] += visc*gamma*invr2*fac; 
         res[2] += visc*drom*invr*fac/norm;
     }

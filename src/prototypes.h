@@ -3,6 +3,8 @@ double scaleH(double x, Params params, Disk *disk);
 double omegaK(double x, Params params, Disk *disk);
 double nu_func(double x, Params params, Disk *disk);
 double cs2_func(double x, Params params, Disk *disk);
+double dlvr_func(double x, Params params, Disk *disk);
+double vr_func(double x, Params params, Disk *disk);
 double cs_func(double x, Params params, Disk *disk);
 double omega2_func(double x, Params params, Disk *disk);
 double kappa2_func(double x, Params params, Disk *disk);

@@ -17,6 +17,13 @@ double cs_func(double x, Params params, Disk *disk) {
     return pow(cs2_func(x, params,disk),.5);
 }
 
+double vr_func(double x, Params params, Disk *disk) {
+    return -1.5*nu_func(x,params,disk)/x;
+}
+double dlvr_func(double x, Params params, Disk *disk) {
+    return vr_func(x,params,disk) * (params.nuindx - 1);
+}
+
 double omega2_func(double x, Params params, Disk *disk) {
     if (!params.pcorrect) {
         return pow(x,-3);
@@ -101,6 +108,8 @@ void alloc_disk(Disk *disk,int n){
     disk->nu = (double *)malloc(sizeof(double)*n);
     disk->pres = (double *)malloc(sizeof(double)*n);
     disk->dpdr = (double *)malloc(sizeof(double)*n);
+    disk->vrbar = (double *)malloc(sizeof(double)*n);
+    disk->dlvrbar = (double *)malloc(sizeof(double)*n);
     return;
 
 }
@@ -120,6 +129,8 @@ void free_disk(Disk *disk ){
     SAFE_FREE(disk->nu);
     SAFE_FREE(disk->pres);
     SAFE_FREE(disk->dpdr);
+    SAFE_FREE(disk->dlvrbar);
+    SAFE_FREE(disk->vrbar);
     return;
 }
 
@@ -137,6 +148,8 @@ void init_disk(char *fname, double *lr,Disk *disk,Params params) {
         disk->dlnudlr[i] = params.nuindx;
         disk->dlTdlr[i] = params.delta;
         disk->d2lTdlr[i] = 0;
+        disk->vrbar[i] = 0;
+        disk->dlvrbar[i] = 0;
         if (params.fromfile) {
         disk->sigma[i] = exp(disk->sigma[i]);
         disk->d2lsdlr[i] = (disk->d2lsdlr[i]<0) ? fmax(disk->d2lsdlr[i],-1./(params.h*params.h)) : fmin(disk->d2lsdlr[i],1./(params.h*params.h));
@@ -146,6 +159,8 @@ void init_disk(char *fname, double *lr,Disk *disk,Params params) {
             disk->sigma[i] = sigma_func(x, params,disk);
             disk->dlsdlr[i] = params.mu;
             disk->d2lsdlr[i] = 0;
+            disk->vrbar[i] = vr_func(x,params,disk);
+            disk->vrbar[i] = dlvr_func(x,params,disk);
         }
         if (!params.pcorrect) {
             disk->omega[i] = omegaK(x, params,disk);

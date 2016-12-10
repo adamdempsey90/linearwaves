@@ -49,6 +49,8 @@ typedef struct Disk {
     double *pres;
     double *dpdr;
     double *lambda;
+    double *vrbar;
+    double *dlvrbar;
 } Disk;
 
 Proc proc;

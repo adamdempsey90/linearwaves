@@ -146,6 +146,54 @@ class Disk():
                 ax.set_xlim(xlims)
             if ylims is not None:
                 ax.set_ylim(ylims)
+    def fullplot(self,q='s',rlims=None,cartesian=True,ax=None,full=False):
+
+        y = self.r.copy()
+        phi = np.linspace(-np.pi,np.pi,2000)
+        if rlims is not None:
+            ind =(y>=rlims[0])&(y<=rlims[1])
+
+        y = y[ind]
+        yy,xx = np.meshgrid(y,phi,indexing='ij')
+
+        if cartesian:
+            x = np.cos(xx)*yy
+            y = np.sin(xx)*yy
+        else:
+            x = xx
+            y = yy
+
+
+
+        if q[0] == 's':
+            dat = self.s[ind,:]
+            dat0 = self.dbar[ind]
+        elif q[0] == 'u':
+            dat = self.u[ind,:]
+            dat0 = np.zeros(y.shape)
+        elif q[0] == 'v':
+            dat = self.v[ind,:]
+            dat0 = y**(-.5)
+        else:
+            print('{} not a valid choice!'.format(q))
+            return
+
+        res = np.zeros(xx.shape)
+
+        for i in range(len(y)):
+            res[i,:] = sum([np.real( dat[i,j]*np.exp(1j*m*phi)) for j,m in enumerate(self.mvals)])
+
+        if full:
+            res += dat0[:,np.newaxis]
+
+
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+
+        ax.pcolormesh(x,y,dat,cmap='viridis')
+        plt.colorbar()
+
 
     def __add__(self,fld):
         out = copy.deepcopy(self)

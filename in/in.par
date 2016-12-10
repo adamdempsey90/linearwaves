@@ -1,8 +1,8 @@
 # Grid Parameters
-n = 1024
+n = 8192
 nphi = 2000
-rmin = .3
-rmax = 3
+rmin = .01
+rmax = 10.0
 nrhs = 3
 
 # What modes to calculate
@@ -15,20 +15,20 @@ mu = -0.5
 delta = -1.0
 f = 0
 nuindx = 0.5
-eta = 0
-alpha = 0.003
+eta = 2./3
+alpha = 0.01
 omf = 1.0
 sig0 = 1.0
 
 
 # EOS and viscosity flags
 iso = Yes
-pcorrect = No
-simple_visc = Yes
+pcorrect = Yes
+simple_visc = No
 ieps = 0.0
 
 # Potential Parameters
-eps = 0.05
+eps = 0.03
 indirect = Yes
 
 # Boundary Conditions
