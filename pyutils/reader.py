@@ -41,9 +41,12 @@ class Disk():
         self.dlr = np.diff(np.log(self.r))[0]
 
         dat = np.fromfile(dfname)[1:]
-        self.dbar = dat[:self.n]
-        self.dlsdlr = dat[self.n:2*self.n]
-        self.d2lsdlr = dat[self.n*2:3*self.n]
+        self.dbar = dat[:self.n]; dat=dat[self.n:]
+        self.dlsdlr = dat[:self.n]; dat=dat[self.n:]
+        self.d2lsdlr = dat[:self.n]; dat=dat[self.n:]
+        self.omega = dat[:self.n]; dat=dat[self.n:]
+        self.dlomdlr = dat[:self.n]; dat=dat[self.n:]
+        self.kappa2 = dat[:self.n]; dat=dat[self.n:]
 
         self.lamex_tot = self.lamex[:,1:].sum(axis=1)
         self.lamdep_tot = self.lamdep[:,1:].sum(axis=1)
@@ -61,6 +64,8 @@ class Disk():
         self.ilamexL = -(self.lamex*2*np.pi*self.r[:,np.newaxis]**2 * self.dlr)[indL,:][::-1].cumsum(axis=0)[::-1]
 
 
+    def Dfunc(self,m):
+        return self.kappa2 - m*(self.omega - 1)**2
     def torque_contours(self,ax=None,scaleH=True,norm=1,cmap='bwr',ylims=None,xlims=None):
         if ax is None:
             fig=plt.figure()
@@ -173,19 +178,24 @@ class Disk():
             ax.set_xlim(xlims)
             return lamex,lamdep,fw
     def plot(self,m,logx=True,axes=None,fig=None,xlims=None,ylims=None):
-        if axes is None:
-            fig,axes = plt.subplots(1,3,figsize=(15,5))
         if m == 0:
-            axes[0].plot(self.r,self.dbar,'-k')
-            axes[1].plot(self.r,self.dlsdlr,'-k')
-            axes[2].plot(self.r,self.d2lsdlr,'-k')
+            if axes is None:
+                fig,axes = plt.subplots(2,3,figsize=(15,5))
+            axes[0,0].plot(self.r,self.dbar,'-k')
+            axes[0,1].plot(self.r,self.dlsdlr,'-k')
+            axes[0,2].plot(self.r,self.d2lsdlr,'-k')
+            axes[1,0].plot(self.r,self.omega,'-k')
+            axes[1,1].plot(self.r,self.dlomdlr,'-k')
+            axes[1,2].plot(self.r,self.kappa2,'-k')
         else:
+            if axes is None:
+                fig,axes = plt.subplots(1,3,figsize=(15,5))
             i = m-1
             axes[0].plot(self.r,self.u.real[:,i],self.r,self.u.imag[:,i])
             axes[1].plot(self.r,self.v.real[:,i],self.r,self.v.imag[:,i])
             axes[2].plot(self.r,self.s.real[:,i],self.r,self.s.imag[:,i])
 
-        for ax in axes:
+        for ax in axes.flatten():
             if logx:
                 ax.set_xscale('log')
             if xlims is not None:

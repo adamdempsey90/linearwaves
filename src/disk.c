@@ -101,6 +101,7 @@ void alloc_disk(Disk *disk,int n){
     disk->dlsdlr = (double *)malloc(sizeof(double)*n);
     disk->d2lsdlr = (double *)malloc(sizeof(double)*n);
     disk->dlomdlr = (double *)malloc(sizeof(double)*n);
+    disk->d2lomdlr = (double *)malloc(sizeof(double)*n);
     disk->dlnudlr = (double *)malloc(sizeof(double)*n);
     disk->dlTdlr = (double *)malloc(sizeof(double)*n);
     disk->d2lTdlr = (double *)malloc(sizeof(double)*n);
@@ -122,6 +123,7 @@ void free_disk(Disk *disk ){
     SAFE_FREE(disk->dlsdlr);
     SAFE_FREE(disk->d2lsdlr);
     SAFE_FREE(disk->dlomdlr);
+    SAFE_FREE(disk->d2lomdlr);
     SAFE_FREE(disk->dlnudlr);
     SAFE_FREE(disk->dlTdlr);
     SAFE_FREE(disk->d2lTdlr);
@@ -137,7 +139,7 @@ void free_disk(Disk *disk ){
 void init_disk(char *fname, double *lr,Disk *disk,Params params) {
     alloc_disk(disk,params.n);
     if (params.fromfile) {
-        read_sigma(fname, lr, disk->sigma,disk->dlsdlr,disk->d2lsdlr,params.n);
+        read_sigma(fname, lr, disk->sigma,disk->dlsdlr,disk->d2lsdlr,disk->omega,disk->dlomdlr, disk->d2lomdlr, params.n, params.readomega);
     }
     int i;
     double x,om2,k2; 
@@ -151,8 +153,8 @@ void init_disk(char *fname, double *lr,Disk *disk,Params params) {
         disk->vrbar[i] = 0;
         disk->dlvrbar[i] = 0;
         if (params.fromfile) {
-        disk->sigma[i] = exp(disk->sigma[i]);
-        disk->d2lsdlr[i] = (disk->d2lsdlr[i]<0) ? fmax(disk->d2lsdlr[i],-1./(params.h*params.h)) : fmin(disk->d2lsdlr[i],1./(params.h*params.h));
+            disk->sigma[i] = exp(disk->sigma[i]);
+            disk->d2lsdlr[i] = (disk->d2lsdlr[i]<0) ? fmax(disk->d2lsdlr[i],-1./(params.h*params.h)) : fmin(disk->d2lsdlr[i],1./(params.h*params.h));
 
         }
         else {
@@ -162,29 +164,36 @@ void init_disk(char *fname, double *lr,Disk *disk,Params params) {
             disk->vrbar[i] = vr_func(x,params,disk);
             disk->vrbar[i] = dlvr_func(x,params,disk);
         }
-        if (!params.pcorrect) {
-            disk->omega[i] = omegaK(x, params,disk);
-            disk->kappa2[i] = disk->omega[i]*disk->omega[i];
-            disk->dlomdlr[i] = -1.5;
+        if ((params.readomega) && (params.fromfile)) {
+                disk->omega[i] = exp(disk->omega[i]);
+                disk->kappa2[i] = (2 + disk->dlomdlr[i])*2*disk->omega[i]*disk->omega[i];
         }
         else {
-            if (params.iso) {
-                om2 = pow(x,-3);
-                om2 += disk->c2[i]/(x*x) *(disk->dlTdlr[i] + disk->dlsdlr[i]) ;
-                disk->omega[i] = pow(om2,.5);
-                k2 = pow(x,-3);
-                k2 += disk->c2[i]/(x*x) *( (2 + disk->dlTdlr[i])*(disk->dlTdlr[i] + disk->dlsdlr[i]) + disk->d2lTdlr[i] + disk->d2lsdlr[i]) ;
-                disk->kappa2[i] = k2;
+            if (!params.pcorrect) {
+                disk->omega[i] = omegaK(x, params,disk);
+                disk->kappa2[i] = disk->omega[i]*disk->omega[i];
+                disk->dlomdlr[i] = -1.5;
             }
             else {
-                om2 = pow(x,-3);
-                om2 += disk->c2[i]/(x*x) *(disk->dlsdlr[i]) ;
-                disk->omega[i] = pow(om2,.5);
-                k2 = pow(x,-3);
-                k2 += disk->c2[i]/(x*x) *( (2 + disk->dlTdlr[i])*(disk->dlsdlr[i]) + disk->d2lsdlr[i]) ;
-                disk->kappa2[i] = k2;
+                if (params.iso) {
+                    om2 = pow(x,-3);
+                    om2 += disk->c2[i]/(x*x) *(disk->dlTdlr[i] + disk->dlsdlr[i]) ;
+                    disk->omega[i] = pow(om2,.5);
+                    k2 = pow(x,-3);
+                    k2 += disk->c2[i]/(x*x) *( (2 + disk->dlTdlr[i])*(disk->dlTdlr[i] + disk->dlsdlr[i]) + disk->d2lTdlr[i] + disk->d2lsdlr[i]) ;
+                    disk->kappa2[i] = k2;
+                }
+                else {
+                    om2 = pow(x,-3);
+                    om2 += disk->c2[i]/(x*x) *(disk->dlsdlr[i]) ;
+                    disk->omega[i] = pow(om2,.5);
+                    k2 = pow(x,-3);
+                    k2 += disk->c2[i]/(x*x) *( (2 + disk->dlTdlr[i])*(disk->dlsdlr[i]) + disk->d2lsdlr[i]) ;
+                    disk->kappa2[i] = k2;
+                }
+                disk->dlomdlr[i] = disk->kappa2[i]/(2*disk->omega[i]*disk->omega[i]) - 2;
+                disk->d2lomdlr[i] = 0;
             }
-            disk->dlomdlr[i] = disk->kappa2[i]/(2*disk->omega[i]*disk->omega[i]) - 2;
         }
 
         disk->pres[i] = disk->c2[i]*disk->sigma[i];
@@ -197,7 +206,11 @@ void init_disk(char *fname, double *lr,Disk *disk,Params params) {
 
     }
 
-
+    FILE *f = fopen("omega.dat","w");
+    fwrite(disk->omega,sizeof(double),params.n,f);
+    fwrite(disk->dlomdlr,sizeof(double),params.n,f);
+    fwrite(disk->d2lomdlr,sizeof(double),params.n,f);
+    fclose(f);
 
 }
 

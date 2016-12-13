@@ -9,13 +9,13 @@ void output_disk(char *fname,Params params, Disk *disk) {
     fwrite(disk->sigma, sizeof(double),params.n,f);
     fwrite(disk->dlsdlr, sizeof(double),params.n,f);
     fwrite(disk->d2lsdlr, sizeof(double),params.n,f);
-    fwrite(disk->c2, sizeof(double),params.n,f);
     fwrite(disk->omega, sizeof(double),params.n,f);
     fwrite(disk->dlomdlr, sizeof(double),params.n,f);
+    fwrite(disk->kappa2, sizeof(double),params.n,f);
+    fwrite(disk->c2, sizeof(double),params.n,f);
     fwrite(disk->dlnudlr, sizeof(double),params.n,f);
     fwrite(disk->dlTdlr, sizeof(double),params.n,f);
     fwrite(disk->d2lTdlr, sizeof(double),params.n,f);
-    fwrite(disk->kappa2, sizeof(double),params.n,f);
     fwrite(disk->nu, sizeof(double),params.n,f);
     fwrite(disk->pres, sizeof(double),params.n,f);
     fwrite(disk->dpdr, sizeof(double),params.n,f);

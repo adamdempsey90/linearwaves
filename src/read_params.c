@@ -107,6 +107,11 @@ void set_var(char *name,int int_val, double double_val, int bool_val, char *str_
         PRINT_STR(name,str_val);
 
     }
+    else if (strcmp(name,"readomega") == 0) {	
+        params->readomega = bool_val;
+        PRINT_STR(name,str_val);
+
+    }
     else if (strcmp(name,"pcorrect") == 0) {	
         params->pcorrect = bool_val;
         PRINT_STR(name,str_val);
@@ -218,6 +223,7 @@ void read_param_file(char *fname, int argc, char *argv[], Params *params) {
     }
 
 
+    params->readomega = params->readomega && params->pcorrect;
     params->dlr = log(params->rmax/params->rmin) / (double)params->n;
     params->eps2 = params->eps*params->eps;
     params->indirect = params->indirect;

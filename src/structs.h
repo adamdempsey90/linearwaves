@@ -11,7 +11,7 @@ typedef struct Params {
     double ieps;
     int iso,pcorrect,zero_inner_bc, zero_outer_bc;
     int simple_visc;
-    int fromfile;
+    int fromfile, readomega;
     char outputname[512];
     char diskfile[512];
     double eps;
@@ -41,6 +41,7 @@ typedef struct Disk {
     double *dlsdlr;
     double *d2lsdlr;
     double *dlomdlr;
+    double *d2lomdlr;
     double *dlnudlr;
     double *dlTdlr;
     double *d2lTdlr;

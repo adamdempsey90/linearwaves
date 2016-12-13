@@ -37,7 +37,7 @@ zero_outer_bc = No
 
 # Read background from file
 fromfile = Yes
+readomega = Yes
 diskfile = profiles/test.dat
-
 # Output file
 outputname = outputs/res.dat

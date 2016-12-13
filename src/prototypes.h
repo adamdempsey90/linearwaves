@@ -49,7 +49,7 @@ void cconstruct_total_matrix(double complex *ld, double complex *md, double comp
 /* fft.c */
 void fft_potential(double *r, double *pot1, double *pot2, int num_modes, int nphi, int howmany, double eps2, int indirect);
 /* interpolation.c */
-void read_sigma(char *fname, double *lr, double *sigma, double *dlsdlr, double *d2lsdlr, int n);
+void read_sigma(char *fname, double *lr, double *sigma, double *dlsdlr, double *d2lsdlr,double *omega, double *dlomdlr, double *d2lomdlr, int n,int readomega);
 /* read_params.c */
 void set_var(char *name, int int_val, double double_val, int bool_val, char *str_val, Params *params);
 void parse_argument(int argc, char *argv[], Params *params);
