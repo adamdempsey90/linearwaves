@@ -53,20 +53,66 @@ class Disk():
         self.drfd = self.drfw[:,0].copy()
         self.mdot_d = self.fw[:,0].copy()
 
+        indR = self.r>=1
+        indL = self.r<=1
+        self.rR = self.r[indR]
+        self.rL = self.r[indL]
+        self.ilamexR = (self.lamex*2*np.pi*self.r[:,np.newaxis]**2 * self.dlr)[indR,:].cumsum(axis=0)
+        self.ilamexL = -(self.lamex*2*np.pi*self.r[:,np.newaxis]**2 * self.dlr)[indL,:][::-1].cumsum(axis=0)[::-1]
 
-    def total_torque(self,logx=False,xlims=None,axes=None):
+
+    def torque_contours(self,ax=None,scaleH=True,norm=1,cmap='bwr',ylims=None,xlims=None):
+        if ax is None:
+            fig=plt.figure()
+            ax=fig.add_subplot(111)
+
+        rvals = np.hstack((self.rL,self.rR))
+        if xlims is not None:
+            indx = (rvals>=xlims[0])&(rvals<=xlims[1])
+        else:
+            indx = np.ones(rvals.shape).astype(bool)
+        if ylims is not None:
+            indy = (self.mvals>=ylims[0])&(self.mvals<=ylims[1])
+        else:
+            indy = np.ones(self.mvals.shape).astype(bool)
+        yy,mm = np.meshgrid(rvals[indx],self.mvals[indy],indexing='ij')
+        if scaleH:
+            yy = (yy-1)/.05
+        TT = np.vstack((self.ilamexL,self.ilamexR))
+        TT = TT[indx,:][:,indy]
+        img=ax.contour(yy,mm,TT/norm,100,cmap=cmap)
+        return img
+
+    def gt80_torque_density(self,r,mu=-.5,hp=.05,d=1.3):
+        res = np.zeros(self.dbar.shape)
+        ind = abs(r-1)>=d*hp
+        res[ind] = np.sign(r[ind]-1)*2*np.pi*.4/abs(r[ind]-1)**4 * self.dbar[ind]
+        return res
+    def total_torque(self,logx=False,xlims=None,axes=None,cumulative=True,norm=(1./.05**2)):
         if axes is None:
-            fig,axes = plt.subplots(1,2,figsize=(10,5))
-        norm = 1./.05**2
-        axes[0].plot(self.mvals,self.TR/norm,'ok',label='Outer')
-        axes[0].plot(self.mvals,self.TL/norm,'sr',label='Inner')
-        axes[1].plot(self.mvals,self.TR.cumsum()/self.TR.sum(),'--ok')
-        axes[1].plot(self.mvals,self.TL.cumsum()/self.TL.sum(),'-sr')
-        for ax in axes:
+            if cumulative:
+                fig,axes = plt.subplots(1,2,figsize=(10,5))
+            else:
+                fig = plt.figure()
+                axes = fig.add_subplot(111)
+
+        if cumulative:
+            axes[0].plot(self.mvals,self.TR/norm,'ok',label='Outer')
+            axes[0].plot(self.mvals,self.TL/norm,'sr',label='Inner')
+            axes[1].plot(self.mvals,self.TR.cumsum()/self.TR.sum(),'--ok')
+            axes[1].plot(self.mvals,self.TL.cumsum()/self.TL.sum(),'-sr')
+            for ax in axes:
+                if logx:
+                    ax.set_xscale('log')
+                    ax.set_xlabel('m',fontsize=15)
+            axes[0].legend(loc='upper right')
+        else:
+            axes.plot(self.mvals,self.TR/norm,'ok',label='Outer')
+            axes.plot(self.mvals,self.TL/norm,'sr',label='Inner')
             if logx:
-                ax.set_xscale('log')
-                ax.set_xlabel('m',fontsize=15)
-        axes[0].legend(loc='upper right')
+                axes.set_xscale('log')
+                axes.set_xlabel('m',fontsize=15)
+            axes.legend(loc='upper right')
 
     def torque(self,m,logx=True,xlims=None,ax=None,integ=False,from_inner=False,tot=False,**kargs):
         if ax is None:
