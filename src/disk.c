@@ -10,11 +10,11 @@ double omegaK(double x, Params params, Disk *disk) {
 double nu_func(double x, Params params, Disk *disk) {
     return params.alpha * params.h*params.h * pow(x, params.nuindx);
 }
-double cs2_func(double x, Params params, Disk *disk) {
-    return params.h*params.h * pow(x,params.delta);
-}
 double cs_func(double x, Params params, Disk *disk) {
-    return pow(cs2_func(x, params,disk),.5);
+    return params.h * pow(x,params.delta);
+}
+double cs2_func(double x, Params params, Disk *disk) {
+    return pow(cs_func(x, params,disk),2);
 }
 
 double vr_func(double x, Params params, Disk *disk) {
@@ -30,7 +30,7 @@ double omega2_func(double x, Params params, Disk *disk) {
     }
     else {
         if (params.iso) {
-            return pow(x,-3) + cs2_func(x, params,disk)/(x*x) * (params.delta + params.mu);
+            return pow(x,-3) + cs2_func(x, params,disk)/(x*x) * (2*params.delta + params.mu);
         }
         else {
             return pow(x,-3) + cs2_func(x, params,disk)/(x*x) * params.mu;
@@ -43,10 +43,10 @@ double kappa2_func(double x, Params params, Disk *disk) {
     }
     else {
         if (params.iso) {
-            return pow(x,-3) + cs2_func(x,params,disk)/(x*x)*( (2+params.delta)*(params.delta+params.mu));
+            return pow(x,-3) + cs2_func(x,params,disk)/(x*x)*( (2+2*params.delta)*(2*params.delta+params.mu));
         }
         else {
-            return pow(x,-3) + cs2_func(x,params,disk)/(x*x)*params.mu*(2+params.delta);
+            return pow(x,-3) + cs2_func(x,params,disk)/(x*x)*params.mu*(2+2*params.delta);
         }
     }
 }
@@ -70,25 +70,25 @@ double dsdr_func(double x, Params params, Disk *disk) {
 }
 double dpdr_func(double x, Params params, Disk *disk) {
     if (params.iso) {
-        return (params.delta + params.mu)*pres_func(x, params,disk)/x;
+        return (2*params.delta + params.mu)*pres_func(x, params,disk)/x;
     }
     else {
         return cs2_func(x,params,disk)*dsdr_func(x, params,disk);
     }
 }
 double dc2dr_func(double x, Params params, Disk *disk) {
-    return params.delta * cs2_func(x,params,disk)/x;
+    return 2*params.delta * cs2_func(x,params,disk)/x;
 }
 double Dfunc(int i, double omp, int m, Params params, Disk *disk) {
     return disk->kappa2[i] - m*m*(disk->omega[i] - omp)*(disk->omega[i]-omp);
 }
 double complex sig(int i, double complex s, Params params, Disk *disk) {
     if (params.iso) {
-        return s*disk->sigma[i];
+        return s*(disk->sigma[i]);
 
     }
     else {
-        return s*disk->sigma[i]/disk->c2[i];
+        return s * (disk->sigma[i])/(disk->c2[i]);
     }
 
 }

@@ -1,6 +1,6 @@
 EXECUTABLE=linearwaves
 LIBRARY=liblinearwaves.so
-SOURCES=coeffs.c disk.c main.c output.c ctridiag.c fft.c read_params.c torques.c viscosity.c linearwaves.c interpolation.c
+SOURCES=coeffs.c disk.c main.c output.c ctridiag.c fft.c read_params.c torques.c viscosity.c linearwaves.c interpolation.c second_order.c
 HEADER=linearwaves.h structs.h prototypes.h defines.h
 LIBHEADER=$(HEADER) liblinear.h
 

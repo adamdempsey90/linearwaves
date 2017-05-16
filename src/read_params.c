@@ -71,8 +71,8 @@ void set_var(char *name,int int_val, double double_val, int bool_val, char *str_
         PRINT_DOUBLE(name,double_val);
 
     }
-    else if (strcmp(name,"sig0") == 0) {	
-        params->sig0 = double_val;
+    else if (strcmp(name,"mdot0") == 0) {	
+        params->mdot0 = double_val;
         PRINT_DOUBLE(name,double_val);
 
     }
@@ -99,6 +99,11 @@ void set_var(char *name,int int_val, double double_val, int bool_val, char *str_
     // Bools
     else if (strcmp(name,"iso") == 0) {	
         params->iso = bool_val;
+        PRINT_STR(name,str_val);
+
+    }
+    else if (strcmp(name,"second_order") == 0) {	
+        params->second_order = bool_val;
         PRINT_STR(name,str_val);
 
     }
@@ -228,6 +233,11 @@ void read_param_file(char *fname, int argc, char *argv[], Params *params) {
     params->eps2 = params->eps*params->eps;
     params->indirect = params->indirect;
     params->a = 1;
+    if (params->alpha > 0) {
+    params->sig0 = params->mdot0/(3*M_PI*params->alpha*params->h*params->h*pow(params->a,params->nuindx));
+    } else {
+        params->sig0 = 1.0;
+    }
 
     return;
 }

@@ -46,12 +46,19 @@ int main(int argc, char *argv[]) {
     int i,j;
 
     for(i=0;i<num_modes;i++) {
-        linearwaves(i, grid,params,disk,FALSE);
+        linearwaves(i, grid,params,disk,FALSE,FALSE);
     }
+
+
 
     char fname[256];
     sprintf(fname,"%s.%d",params.outputname,proc.rank);
     output_torques(fname,params,grid);
+
+    if (params.second_order) {
+        calc_forcing(grid->r,grid->u,grid->v,grid->s,grid->Ru,grid->Rv,grid->Rs,params,disk);
+        linearwaves(i, grid,params,disk,FALSE,TRUE);
+    }
     if (proc.rank == 0) {
         sprintf(fname,"%s.disk",params.outputname);
         output_disk(fname,params,disk);

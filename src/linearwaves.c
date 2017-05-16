@@ -17,7 +17,7 @@ void excited_torques(double *r, double complex *sp, double *dppot, double *TL, d
 }
 */
 
-void linearwaves(int i, Grid *grid, Params params, Disk *disk, int silent) {
+void linearwaves(int i, Grid *grid, Params params, Disk *disk, int silent,int second_order) {
     
     int m = grid->mvals[i];
     double *r = grid->r;
@@ -32,11 +32,24 @@ void linearwaves(int i, Grid *grid, Params params, Disk *disk, int silent) {
     double *drfw = &grid->drfw[(i)*grid->n];
     double *TL = &grid->TL[i];
     double *TR = &grid->TR[i];
-    double complex *u = &grid->u[(i)*grid->n];
-    double complex *v = &grid->v[(i)*grid->n];
-    double complex *s = &grid->s[(i)*grid->n];
+    double complex *u;
+    double complex *v;
+    double complex *s;
+    if (second_order) {
+        u = &grid->u2[(i)*grid->n];
+        v = &grid->v2[(i)*grid->n];
+        s = &grid->s2[(i)*grid->n];
+    }
+    else {
+        u = &grid->u[(i)*grid->n];
+        v = &grid->v[(i)*grid->n];
+        s = &grid->s[(i)*grid->n];
+    }
     double *dppot = &grid->dppot[(i)*grid->n];
     double *drpot = &grid->drpot[(i)*grid->n];
+    double complex *Ru = &grid->Ru[i*(grid->n)];
+    double complex *Rv = &grid->Rv[i*(grid->n)];
+    double complex *Rs = &grid->Rs[i*(grid->n)];
     FILE *f;
     int j;
     /*
@@ -46,7 +59,12 @@ void linearwaves(int i, Grid *grid, Params params, Disk *disk, int silent) {
        fclose(f);
    }
    */
-    construct_matrix(r,ld,md,ud,fd,dppot,drpot,m,params,disk);
+    if (second_order) {
+        construct_matrix_second(r,ld,md,ud,fd,Ru,Rv,Rs,m,params,disk);
+    }
+    else {
+        construct_matrix(r,ld,md,ud,fd,drpot,dppot,m,params,disk);
+    }
     /*
     if (m==2) {
     f = fopen("matrix.dat","w");
@@ -67,7 +85,9 @@ void linearwaves(int i, Grid *grid, Params params, Disk *disk, int silent) {
         s[i] = sig(i,fd[i*params.nrhs+2],params,disk);
     }
 
-    calc_torques(r,fw,drfw,lamex,lamdep,fd,dppot,TL,TR,m,params,disk,silent);
+    if (!second_order) {
+        calc_torques(r,u,v,s,fw,drfw,lamex,lamdep,fd,dppot,TL,TR,m,params,disk,silent);
+    }
     
     SAFE_FREE(md);
     SAFE_FREE(fd);
@@ -100,6 +120,12 @@ void init_grid(int mstart, int mend, Grid *grid, Params params, Disk *disk) {
     grid->u = (double complex *)malloc(sizeof(double)*num_modes*params.n);
     grid->v = (double complex *)malloc(sizeof(double)*num_modes*params.n);
     grid->s = (double complex *)malloc(sizeof(double)*num_modes*params.n);
+    grid->u2 = (double complex *)malloc(sizeof(double)*num_modes*params.n);
+    grid->v2 = (double complex *)malloc(sizeof(double)*num_modes*params.n);
+    grid->s2 = (double complex *)malloc(sizeof(double)*num_modes*params.n);
+    grid->Ru = (double complex *)malloc(sizeof(double)*num_modes*params.n);
+    grid->Rv = (double complex *)malloc(sizeof(double)*num_modes*params.n);
+    grid->Rs = (double complex *)malloc(sizeof(double)*num_modes*params.n);
     grid->dppot = (double *)malloc(sizeof(double)*num_modes*params.n);
     grid->drpot = (double *)malloc(sizeof(double)*num_modes*params.n);
     grid->n = params.n;
@@ -147,6 +173,12 @@ void free_linear_grid(Grid *grid) {
     SAFE_FREE(grid->u);
     SAFE_FREE(grid->v);
     SAFE_FREE(grid->s);
+    SAFE_FREE(grid->u2);
+    SAFE_FREE(grid->v2);
+    SAFE_FREE(grid->s2);
+    SAFE_FREE(grid->Ru);
+    SAFE_FREE(grid->Rv);
+    SAFE_FREE(grid->Rs);
     SAFE_FREE(grid->dppot);
     SAFE_FREE(grid->drpot);
     return;
@@ -159,7 +191,7 @@ void get_excited_torques(int mstart, int mend, double *TL, double *TR, Grid *gri
     int i;
     int num_modes = mend-mstart+1;
     for(i=0;i<num_modes;i++) {
-        linearwaves(i, grid, params,disk,FALSE);
+        linearwaves(i, grid, params,disk,FALSE,FALSE);
         *TL += grid->TL[i];
         *TR += grid->TR[i];
     }

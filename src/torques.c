@@ -2,7 +2,7 @@
 
 
 
-void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *dppot, double *TL, double *TR,int m, Params params, Disk *disk, int silent) {
+void calc_torques(double *r, double complex *us, double complex *vs, double complex *ss, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *dppot, double *TL, double *TR,int m, Params params, Disk *disk, int silent) {
     double complex lf[3], uf[3], mf[3];
     double invdlr, invdlr2;
     double om;
@@ -12,14 +12,27 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
     int i,j;
     int size = params.nrhs;
     FILE *f;
-    char fname[256];
-    sprintf(fname,"outputs/sol%d.dat.%d",m,proc.rank);
-    f = fopen(fname,"w");
-    for(j=0;j<params.n;j++) {
-       fprintf(f,"%.16f\t%.16f\t%.16f\t%.16f\t%.16f\t%.16f\n",creal(sol[j*3]),cimag(sol[j*3]),
-               creal(sol[j*3+1]),cimag(sol[j*3+1]),
-               creal(sol[j*3+2]),cimag(sol[j*3+2]));
+
+    if (m==1) {
+        f = fopen(params.outputname,"wb");
     }
+    else {
+        f = fopen(params.outputname,"ab");
+
+    }
+    fwrite(us, sizeof(double complex),params.n,f);
+    fwrite(vs, sizeof(double complex),params.n,f);
+    fwrite(ss, sizeof(double complex),params.n,f);
+    fclose(f);
+
+//    char fname[256];
+//    sprintf(fname,"outputs/sol%d.dat.%d",m,proc.rank);
+//    f = fopen(fname,"w");
+//    for(j=0;j<params.n;j++) {
+//       fprintf(f,"%.16f\t%.16f\t%.16f\t%.16f\t%.16f\t%.16f\n",creal(sol[j*3]),cimag(sol[j*3]),
+//               creal(sol[j*3+1]),cimag(sol[j*3+1]),
+//               creal(sol[j*3+2]),cimag(sol[j*3+2]));
+//    }
     invdlr = 1./(params.dlr);
     invdlr2 = invdlr*invdlr;
     *TL = 0;
@@ -33,11 +46,16 @@ void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *la
         }
         lamdep[i] = 0;
 
-        u = sol[i*params.nrhs];
-        v = sol[i*params.nrhs+1];
-        dv = sol[(i+1)*params.nrhs+1] - sol[(i-1)*params.nrhs+1];
-        du = sol[(i+1)*params.nrhs] - sol[(i-1)*params.nrhs];
-        s = sig(i,sol[i*params.nrhs+2],params,disk);
+        //u = sol[i*params.nrhs];
+        //v = sol[i*params.nrhs+1];
+        //s = sig(i,sol[i*params.nrhs+2],params,disk);
+        //dv = sol[(i+1)*params.nrhs+1] - sol[(i-1)*params.nrhs+1];
+        //du = sol[(i+1)*params.nrhs] - sol[(i-1)*params.nrhs];
+        u = us[i];
+        v = vs[i];
+        s = ss[i];
+        du = us[i+1] - us[i-1];
+        dv = vs[i+1] - vs[i-1];
 
 
         om = disk->omega[i];

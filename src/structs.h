@@ -7,6 +7,7 @@ typedef struct Params {
     int mstart,mend;
 
     double h, mu, delta, nuindx, eta, alpha,omf,f,sig0;
+    double mdot0;
     double dlr,rmin,rmax,tol;
     double ieps;
     int iso,pcorrect,zero_inner_bc, zero_outer_bc;
@@ -17,6 +18,7 @@ typedef struct Params {
     double eps;
     double eps2;
     int indirect;
+    int second_order;
     double softening, softening2;
     double a;
 
@@ -30,6 +32,8 @@ typedef struct Grid {
     double *lamdep, *lamex, *fw, *drfw;
     double *TL, *TR;
     double complex *u, *v, *s;
+    double complex *u2, *v2, *s2;
+    double complex *Ru, *Rv, *Rs;
     double  *dppot, *drpot;
 
 } Grid;

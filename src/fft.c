@@ -5,7 +5,8 @@
 double potential(double phi, double x, double eps2, int indirect) {
     double res = -pow(x*x + 1 + eps2 - 2*x*cos(phi),-.5);
     if (indirect) {
-        res += cos(phi)*1./(x*x);
+        //res += cos(phi)*1./(x*x);
+        res += cos(phi)*x;
     }
     return res;
 }
@@ -14,7 +15,7 @@ double dr_potential(double phi, double x, double eps2, int indirect) {
     double res = ( x - cos(phi)) * pow(x*x + 1 + eps2 - 2*x*cos(phi),-1.5);
 
     if (indirect) {
-        res -= 2* cos(phi)*1./(x*x*x);
+        res += cos(phi);
     }
     return res;
 }

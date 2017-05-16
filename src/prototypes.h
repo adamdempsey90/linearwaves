@@ -37,6 +37,7 @@ void zero_outer_bc(double complex *mdn, double complex *ldn);
 void lw_inner_bc(int indx, double r0, int m, int eps, double complex *md0, double complex *ud0, Params params, Disk *disk);
 void lw_outer_bc(int indx, double rn, int m, int eps, double complex *mdn, double complex *ldn, Params params, Disk *disk);
 void construct_matrix(double *r, double complex *ld, double complex *md, double complex *ud, double complex *fd, double *dppot, double *drpot, int m, Params params, Disk *disk);
+void construct_matrix_second(double *r, double complex *ld, double complex *md, double complex *ud, double complex *fd, double complex *Ru, double complex *Rv,double complex *Rs, int m, Params params, Disk *disk);
 /* ctridiag.c */
 void cmatmat(double complex *A, double complex *B, double complex *C, double complex alpha, double complex beta, int nA);
 void cmatvec(double complex *A, double complex *B, double complex *C, double complex alpha, double complex beta, int nB);
@@ -55,9 +56,10 @@ void set_var(char *name, int int_val, double double_val, int bool_val, char *str
 void parse_argument(int argc, char *argv[], Params *params);
 void read_param_file(char *fname, int argc, char *argv[], Params *params);
 /* torques.c */
-void calc_torques(double *r, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *dppot, double *TL, double *TR, int m, Params params, Disk *disk, int silent);
+void calc_torques(double *r, double complex *us, double complex *vs, double complex *ss, double *fw, double *drfw, double *lamex, double *lamdep, double complex *sol, double *dppot, double *TL, double *TR,int m, Params params, Disk *disk, int silent);
 /* output.c */
 void output_disk(char *fname, Params params, Disk *disk);
 void output(double *r, double complex *sol, double *lamex, double *lamdep, double *drfw, double *fw, char *fname, Params params);
 void output_torques(char *fname, Params params, Grid *grid);
 void output_matrix(double complex *ld, double complex *md, double complex *ud, double complex *fd, Params params);
+void output_second(double *r, double complex *sol, char *fname, Params params);

@@ -23,7 +23,7 @@ void interpolation(double *xd, double *yd, int nd, double *x, double *y, double 
     return;
 }
 
-void interpolate_onto_grid(double *xd, double *yd, int ndata, double *lr, double *ynew, double *dlydlr, double *d2lydlr, int n) {
+void interpolate_onto_grid(double *xd, double *yd, int ndata, double *lr, double *ynew, double *dlydlr, double *d2lydlr, int n,int add_flag) {
     int i;
     int jstart = 0;
     int jend = n-1;
@@ -61,6 +61,19 @@ void interpolate_onto_grid(double *xd, double *yd, int ndata, double *lr, double
         dlydlr[i] = dlydlr[jend];
         d2lydlr[i] = 0;
     }
+
+// Add in inner truncation and outer truncation
+    if (add_flag) {
+        double ri = exp(lr[0])*.99;
+        double ro = exp(lr[n-1])/2.0;
+        double x;
+        for(i=0;i<n;i++) {
+            x = exp(lr[i]);
+            ynew[i] += log(1 - sqrt(ri/x)) - pow(x/ro,2);
+            dlydlr[i] += .5*sqrt(ri/x)*pow(1-sqrt(ri/x),-1) - 2*pow(x/ro,2);
+            d2lydlr[i] += -.25*sqrt(ri/x)*pow(1-sqrt(ri/x),-2) - 4*pow(x/ro,2);
+        }  
+    }
     return;
 
 }
@@ -86,13 +99,18 @@ void read_sigma(char *fname, double *lr, double *sigma, double *dlsdlr, double *
     fres =  fread(yd,sizeof(double),ndata,f);
     FREAD_CHECK(fres,ndata);
 
-    interpolate_onto_grid(xd,yd,ndata,lr,sigma,dlsdlr,d2lsdlr,n);
+    interpolate_onto_grid(xd,yd,ndata,lr,sigma,dlsdlr,d2lsdlr,n,TRUE);
+
 
     if (readomega) { 
         fres =  fread(yd,sizeof(double),ndata,f);
         FREAD_CHECK(fres,ndata);
-        interpolate_onto_grid(xd,yd,ndata,lr,omega,dlomdlr,d2lomdlr,n);
+        for(i=0;i<(int)ndata;i++) {
+            yd[i] = log( exp(yd[i])/pow(exp(xd[i]),2));
+        }
+        interpolate_onto_grid(xd,yd,ndata,lr,omega,dlomdlr,d2lomdlr,n,FALSE);
     }
+
 
     fclose(f);
     SAFE_FREE(xd);
