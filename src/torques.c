@@ -72,7 +72,7 @@ void calc_torques(double *r, double complex *us, double complex *vs, double comp
         fw[i] = r[i]*r[i]*dbar*2*creal(u * conj(v));
         drfw[i] = (2*dbar + r[i]*dsdr)*2*creal(u*conj(v)) + .5*invdlr*dbar*2*creal(du*conj(v)+u*conj(dv));
         for(j=0;j<params.nrhs;j++) mf[j] = 0;
-        lamex[i] = -2*m*creal(cimag(s)*dppot[i]);
+        lamex[i] = -2*m*params.mp*creal(cimag(s)*dppot[i]);
         //lamex[i] = r[i]*2*creal(conj(s)*-dppot[i]*I*m/r[i]);
         if (r[i] >= params.a) *TR += lamex[i]*2*M_PI*r[i]*r[i]*params.dlr;
         if (r[i] <= params.a) *TL -= lamex[i]*2*M_PI*r[i]*r[i]*params.dlr;

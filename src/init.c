@@ -37,5 +37,8 @@ void init_params(void) {
     planet.a = 1;
     planet.indirect = TRUE;
 
+    params.mp = 0;
+    params.second_order = FALSE;
+
     return;
 }

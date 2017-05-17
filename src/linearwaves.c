@@ -80,9 +80,9 @@ void linearwaves(int i, Grid *grid, Params params, Disk *disk, int silent,int se
     cthomas_alg_block(ld,md,ud,fd,params.n,params.nrhs);
 
     for(i=0;i<grid->n;i++) {
-        u[i] = params.mp*fd[i*params.nrhs];
-        v[i] = params.mp*fd[i*params.nrhs+1];
-        s[i] = params.mp*sig(i,fd[i*params.nrhs+2],params,disk);
+        u[i] = fd[i*params.nrhs];
+        v[i] = fd[i*params.nrhs+1];
+        s[i] = sig(i,fd[i*params.nrhs+2],params,disk);
     }
     char fname[512];
     if (second_order) {

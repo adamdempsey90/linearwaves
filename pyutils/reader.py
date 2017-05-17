@@ -34,8 +34,6 @@ class Disk():
         self.v = np.zeros((self.n,self.nm),dtype='complex')
         self.s = np.zeros((self.n,self.nm),dtype='complex')
         print(fname)
-        if second:
-            dat = np.fromfile(fname+'.2',dtype='complex').reshape(self.nm,3,self.n).T
         dat = np.fromfile(fname,dtype='complex').reshape(self.nm,3,self.n).T
 
         self.u = dat[:,0,:]
@@ -43,9 +41,9 @@ class Disk():
         self.s = dat[:,2,:]
         if second:
             dat = np.fromfile(fname+'.2',dtype='complex').reshape(self.nm,3,self.n).T
-        self.u += dat[:,0,:]
-        self.v += dat[:,1,:]
-        self.s += dat[:,2,:]
+            self.u += dat[:,0,:]
+            self.v += dat[:,1,:]
+            self.s += dat[:,2,:]
         #for indx,i in enumerate(np.arange(self.nm)+self.mi):
         #    dat = np.loadtxt('outputs/sol{:d}.dat.{:d}'.format(i,p))
         #    self.u[:,indx] = dat[:,0] + 1j*dat[:,1]

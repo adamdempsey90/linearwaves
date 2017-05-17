@@ -16,7 +16,7 @@ h = 0.05
 mu = -0.5
 delta = -0.5
 f = 0
-nuindx = 0.0
+nuindx = 0.5
 eta = 0.0
 alpha = 0.003
 omf = 1.0
@@ -25,8 +25,8 @@ mdot0 = 2.36e-5
 
 # EOS and viscosity flags
 iso = Yes
-pcorrect = No
-simple_visc = Yes
+pcorrect = Yes
+simple_visc = No
 ieps = 0.00
 
 # Potential Parameters
