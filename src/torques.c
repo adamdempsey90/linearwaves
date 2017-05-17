@@ -13,17 +13,6 @@ void calc_torques(double *r, double complex *us, double complex *vs, double comp
     int size = params.nrhs;
     FILE *f;
 
-    if (m==1) {
-        f = fopen(params.outputname,"wb");
-    }
-    else {
-        f = fopen(params.outputname,"ab");
-
-    }
-    fwrite(us, sizeof(double complex),params.n,f);
-    fwrite(vs, sizeof(double complex),params.n,f);
-    fwrite(ss, sizeof(double complex),params.n,f);
-    fclose(f);
 
 //    char fname[256];
 //    sprintf(fname,"outputs/sol%d.dat.%d",m,proc.rank);

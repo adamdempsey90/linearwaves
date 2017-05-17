@@ -4,7 +4,7 @@ from matplotlib import colors
 import copy
 
 class Disk():
-    def __init__(self,fname='outputs/res.dat',p=0):
+    def __init__(self,fname='outputs/res.dat',p=0,second=False):
         dfname = fname + '.disk'
         fname_d = fname +'.{:d}'.format(p)
         dat = np.fromfile(fname_d)
@@ -34,10 +34,18 @@ class Disk():
         self.v = np.zeros((self.n,self.nm),dtype='complex')
         self.s = np.zeros((self.n,self.nm),dtype='complex')
         print(fname)
+        if second:
+            dat = np.fromfile(fname+'.2',dtype='complex').reshape(self.nm,3,self.n).T
         dat = np.fromfile(fname,dtype='complex').reshape(self.nm,3,self.n).T
+
         self.u = dat[:,0,:]
         self.v = dat[:,1,:]
         self.s = dat[:,2,:]
+        if second:
+            dat = np.fromfile(fname+'.2',dtype='complex').reshape(self.nm,3,self.n).T
+        self.u += dat[:,0,:]
+        self.v += dat[:,1,:]
+        self.s += dat[:,2,:]
         #for indx,i in enumerate(np.arange(self.nm)+self.mi):
         #    dat = np.loadtxt('outputs/sol{:d}.dat.{:d}'.format(i,p))
         #    self.u[:,indx] = dat[:,0] + 1j*dat[:,1]

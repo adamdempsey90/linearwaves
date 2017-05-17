@@ -80,10 +80,30 @@ void linearwaves(int i, Grid *grid, Params params, Disk *disk, int silent,int se
     cthomas_alg_block(ld,md,ud,fd,params.n,params.nrhs);
 
     for(i=0;i<grid->n;i++) {
-        u[i] = fd[i*params.nrhs];
-        v[i] = fd[i*params.nrhs+1];
-        s[i] = sig(i,fd[i*params.nrhs+2],params,disk);
+        u[i] = params.mp*fd[i*params.nrhs];
+        v[i] = params.mp*fd[i*params.nrhs+1];
+        s[i] = params.mp*sig(i,fd[i*params.nrhs+2],params,disk);
     }
+    char fname[512];
+    if (second_order) {
+        sprintf(fname,"%s.2",params.outputname);
+    }
+    else {
+        sprintf(fname,"%s",params.outputname);
+
+    }
+    if (m==1) {
+    
+        f = fopen(fname,"wb");
+    }
+    else {
+        f = fopen(fname,"ab");
+
+    }
+    fwrite(u, sizeof(double complex),params.n,f);
+    fwrite(v, sizeof(double complex),params.n,f);
+    fwrite(s, sizeof(double complex),params.n,f);
+    fclose(f);
 
     if (!second_order) {
         calc_torques(r,u,v,s,fw,drfw,lamex,lamdep,fd,dppot,TL,TR,m,params,disk,silent);

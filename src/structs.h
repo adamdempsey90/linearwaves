@@ -21,6 +21,7 @@ typedef struct Params {
     int second_order;
     double softening, softening2;
     double a;
+    double mp;
 
 
 }    Params;

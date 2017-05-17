@@ -56,8 +56,12 @@ int main(int argc, char *argv[]) {
     output_torques(fname,params,grid);
 
     if (params.second_order) {
+        printf("Calculating second order forcing...\n");
         calc_forcing(grid->r,grid->u,grid->v,grid->s,grid->Ru,grid->Rv,grid->Rs,params,disk);
-        linearwaves(i, grid,params,disk,FALSE,TRUE);
+        printf("Calculating second order solution...\n");
+        for(i=0;i<num_modes;i++) {
+            linearwaves(i, grid,params,disk,FALSE,TRUE);
+        }
     }
     if (proc.rank == 0) {
         sprintf(fname,"%s.disk",params.outputname);

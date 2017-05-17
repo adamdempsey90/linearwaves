@@ -96,6 +96,11 @@ void set_var(char *name,int int_val, double double_val, int bool_val, char *str_
         PRINT_DOUBLE(name,double_val);
 
     }
+    else if (strcmp(name,"mp") == 0) {	
+        params->mp = double_val;
+        PRINT_DOUBLE(name,double_val);
+
+    }
     // Bools
     else if (strcmp(name,"iso") == 0) {	
         params->iso = bool_val;

@@ -8,15 +8,17 @@ nrhs = 3
 # What modes to calculate
 mstart = 1
 mend = 100
+second_order = No
+mp = 1e-6
 
 # Disk Properties
-h = 0.0
+h = 0.05
 mu = -0.5
 delta = -0.5
 f = 0
-nuindx = 0.05
+nuindx = 0.0
 eta = 0.0
-alpha = 0.0
+alpha = 0.003
 omf = 1.0
 mdot0 = 2.36e-5
 
@@ -40,4 +42,4 @@ fromfile = No
 readomega = No
 diskfile = profiles/powerlaw.dat
 # Output file
-outputname = results3.dat
+outputname = test.dat
