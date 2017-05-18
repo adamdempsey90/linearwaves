@@ -60,9 +60,14 @@ void calc_torques(double *r, double complex *us, double complex *vs, double comp
         viscosity_d2coeffs_v(i,r[i],uf,invdlr2,params,disk);
 
         res = 0;
+        res += lf[0]*us[i-1] + mf[0]*us[i] + uf[0]*us[i+1];
+        res += lf[1]*vs[i-1] + mf[1]*vs[i] + uf[1]*vs[i+1];
+        res += lf[2]*ss[i-1]/(disk->sigma[i-1]) + mf[2]*ss[i]/(disk->sigma[i]) + uf[2]*ss[i+1]/(disk->sigma[i+1]);
+        /*
         for(j=0;j<params.nrhs;j++) {
             res += lf[j]*sol[(i-1)*size+j] + mf[j]*sol[i*size+j] + uf[j]*sol[(i+1)*size+j]; 
         }
+        */
         res *= r[i];
         lamdep[i] += 2*creal(conj(s) * res);
         lamdep[i] += 2*creal(conj(s)*u)*r[i]*k2om;
@@ -72,7 +77,7 @@ void calc_torques(double *r, double complex *us, double complex *vs, double comp
         fw[i] = r[i]*r[i]*dbar*2*creal(u * conj(v));
         drfw[i] = (2*dbar + r[i]*dsdr)*2*creal(u*conj(v)) + .5*invdlr*dbar*2*creal(du*conj(v)+u*conj(dv));
         for(j=0;j<params.nrhs;j++) mf[j] = 0;
-        lamex[i] = -2*m*params.mp*creal(cimag(s)*dppot[i]);
+        lamex[i] = -2*m*creal(cimag(s)*dppot[i]);
         //lamex[i] = r[i]*2*creal(conj(s)*-dppot[i]*I*m/r[i]);
         if (r[i] >= params.a) *TR += lamex[i]*2*M_PI*r[i]*r[i]*params.dlr;
         if (r[i] <= params.a) *TL -= lamex[i]*2*M_PI*r[i]*r[i]*params.dlr;

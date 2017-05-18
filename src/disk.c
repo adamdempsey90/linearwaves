@@ -88,6 +88,7 @@ double complex sig(int i, double complex s, Params params, Disk *disk) {
 
     }
     else {
+        printf("Not iso\n");
         return s * (disk->sigma[i])/(disk->c2[i]);
     }
 

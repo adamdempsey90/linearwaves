@@ -161,19 +161,19 @@ void construct_matrix(double *r, double complex *ld, double complex *md, double 
         main_diag(i,r[i],m, &md[i*size],params,disk);
         upper_diag(i,r[i],m, &ud[i*size],params,disk);
         lower_diag(i,r[i],m, &ld[(i-1)*size],params,disk);
-        fd[i*params.nrhs] = -params.mp*drpot[i]; 
-        fd[i*params.nrhs+1] =-params.mp*dppot[i]*I*m/r[i];
+        fd[i*params.nrhs] = -params.mp * drpot[i]; 
+        fd[i*params.nrhs+1] = -params.mp * dppot[i]*I*m/r[i];
         fd[i*params.nrhs+2] = 0;
     }
 
     i = n-1;
     if (params.zero_outer_bc) {
         zero_outer_bc(&md[i*size],  &ld[(i-1)*size]);
-        fd[i*params.nrhs] = 0; fd[i*params.nrhs+1] = 0; fd[i*params.nrhs+1] = 0;
+        fd[i*params.nrhs] = 0; fd[i*params.nrhs+1] = 0; fd[i*params.nrhs+2] = 0;
     }
     else {
         lw_outer_bc(i,r[i], m, 1, &md[i*size],  &ld[(i-1)*size],params,disk);
-        fd[i*params.nrhs] = 0; fd[i*params.nrhs+1] = 0; fd[i*params.nrhs+1] = 0;
+        fd[i*params.nrhs] = 0; fd[i*params.nrhs+1] = 0; fd[i*params.nrhs+2] = 0;
     }
     return;
 }
@@ -205,13 +205,13 @@ void construct_matrix_second(double *r, double complex *ld, double complex *md, 
     i = n-1;
     if (params.zero_outer_bc) {
         zero_outer_bc(&md[i*size],  &ld[(i-1)*size]);
-        fd[i*params.nrhs] = 0; fd[i*params.nrhs+1] = 0; fd[i*params.nrhs+1] = 0;
+        fd[i*params.nrhs] = 0; fd[i*params.nrhs+1] = 0; fd[i*params.nrhs+2] = 0;
     }
     else {
         lw_outer_bc(i,r[i], m, 1, &md[i*size],  &ld[(i-1)*size],params,disk);
         fd[i*params.nrhs] = 0;//Ru[n-1];
         fd[i*params.nrhs+1] = 0;//Rv[n-1];
-        fd[i*params.nrhs+1] = 0;//Rs[n-1];
+        fd[i*params.nrhs+2] = 0;//Rs[n-1];
     }
     return;
 }

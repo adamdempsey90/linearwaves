@@ -243,6 +243,9 @@ void read_param_file(char *fname, int argc, char *argv[], Params *params) {
     } else {
         params->sig0 = 1.0;
     }
+    if (!params->second_order) {
+        params->mp = 1.0;
+    }
 
     return;
 }

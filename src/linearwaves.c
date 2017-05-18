@@ -63,7 +63,7 @@ void linearwaves(int i, Grid *grid, Params params, Disk *disk, int silent,int se
         construct_matrix_second(r,ld,md,ud,fd,Ru,Rv,Rs,m,params,disk);
     }
     else {
-        construct_matrix(r,ld,md,ud,fd,drpot,dppot,m,params,disk);
+        construct_matrix(r,ld,md,ud,fd,dppot,drpot,m,params,disk);
     }
     /*
     if (m==2) {
@@ -77,14 +77,30 @@ void linearwaves(int i, Grid *grid, Params params, Disk *disk, int silent,int se
     fclose(f);
     }
     */
+    char fname[512];
+    sprintf(fname,"%s.matrix",params.outputname);
+
+    if (m==1) { 
+        f = fopen(fname,"wb");
+    }
+    else {
+        f = fopen(fname,"ab");
+
+    }
+    fwrite(fd,sizeof(double complex),params.n*3,f);
+    fwrite(md,sizeof(double complex),params.n*3,f);
+    fwrite(ud,sizeof(double complex),params.n*3-1,f);
+    fwrite(ld,sizeof(double complex),params.n*3-1,f);
+    fclose(f);
+        
+    
     cthomas_alg_block(ld,md,ud,fd,params.n,params.nrhs);
 
-    for(i=0;i<grid->n;i++) {
-        u[i] = fd[i*params.nrhs];
-        v[i] = fd[i*params.nrhs+1];
-        s[i] = sig(i,fd[i*params.nrhs+2],params,disk);
+    for(j=0;j<grid->n;j++) {
+        u[j] = fd[j*params.nrhs];
+        v[j] = fd[j*params.nrhs+1];
+        s[j] = sig(j,fd[j*params.nrhs+2],params,disk);
     }
-    char fname[512];
     if (second_order) {
         sprintf(fname,"%s.2",params.outputname);
     }
